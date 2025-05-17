@@ -232,6 +232,7 @@ Widget TextFildCreator(
   labelText, {
   hintText,
   controller,
+  onChanged,
   hide = false,
   regfilter = r'.',
   Color? hoverColor,
@@ -247,6 +248,7 @@ Widget TextFildCreator(
 
   return TextField(
     controller: controller,
+    onChanged: onChanged,
     obscureText: hide,
     inputFormatters: [FilteringTextInputFormatter.allow(RegExp(regfilter))],
     decoration: InputDecoration(

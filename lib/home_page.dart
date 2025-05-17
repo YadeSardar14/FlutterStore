@@ -8,8 +8,83 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  final TextEditingController _searchController = TextEditingController();
+  OverlayEntry? _overlayEntry;
 
-  
+  void _onSearchChanged(String query) {
+    _overlayEntry?.remove();
+    _overlayEntry = null;
+
+    if (query.isNotEmpty) {
+      List filteredProducts =
+          Products.where(
+            (item) => item["name"].toString().toLowerCase().contains(
+              query.toLowerCase(),
+            ),
+          ).toList();
+      if (filteredProducts.isNotEmpty) {
+        _overlayEntry = _createOverlayEntry(filteredProducts);
+        Overlay.of(context).insert(_overlayEntry!);
+      }
+    }
+  }
+
+  OverlayEntry _createOverlayEntry(List ProductsList) {
+    RenderBox renderBox = context.findRenderObject() as RenderBox;
+    Offset offset = renderBox.localToGlobal(Offset.zero);
+
+    return OverlayEntry(
+      builder:
+          (context) => Positioned(
+            left: 35,
+            right: 70,
+
+            top: offset.dy + 60,
+
+            child: Material(
+              color: const Color.fromARGB(199, 255, 218, 184),
+              elevation: 4.0,
+
+              borderRadius: BorderRadius.circular(12),
+              child: ListView.builder(
+                padding: EdgeInsets.fromLTRB(0, 16, 0, 8),
+                shrinkWrap: true,
+                itemCount: ProductsList.length,
+                itemBuilder: (context, index) {
+                  Map product = ProductsList[index];
+                  return Card(
+                    color: const Color.fromARGB(197, 255, 255, 255),
+                    margin: EdgeInsets.symmetric(vertical: 2, horizontal: 8),
+
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    elevation: 2,
+                    child: ListTile(
+                      leading: Padding(
+                        padding: EdgeInsets.symmetric(vertical: 3),
+                        child: Image(image: AssetImage(product["picPatch"])),
+                      ),
+                      title: TextCreator(
+                        fontsize: 14,
+                        product["name"],
+                        style: FontWeight.bold,
+                        color: const Color.fromARGB(103, 0, 7, 112),
+                      ),
+                      trailing: PriceShow(
+                        int.parse(product["price"]),
+                        fontsize: 14,
+                        color: const Color.fromARGB(255, 57, 24, 114),
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
+          ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     setProducts();
@@ -25,6 +100,8 @@ class _HomePageState extends State<HomePage> {
 
                   child: TextFildCreator(
                     "جستجو در فلاتر",
+                    onChanged: _onSearchChanged,
+                    // controller: _searchController,
                     borderColor: AppColor.DarkTransparent,
                   ),
                 ),
@@ -75,19 +152,3 @@ class _HomePageState extends State<HomePage> {
     );
   }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
