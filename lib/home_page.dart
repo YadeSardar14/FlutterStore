@@ -8,7 +8,7 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  final TextEditingController _searchController = TextEditingController();
+
   OverlayEntry? _overlayEntry;
 
   void _onSearchChanged(String query) {
@@ -66,7 +66,7 @@ class _HomePageState extends State<HomePage> {
                         child: Image(image: AssetImage(product["picPatch"])),
                       ),
                       title: TextCreator(
-                        fontsize: 14,
+                        fontsize:14,
                         product["name"],
                         style: FontWeight.bold,
                         color: const Color.fromARGB(103, 0, 7, 112),
@@ -101,8 +101,9 @@ class _HomePageState extends State<HomePage> {
                   child: TextFildCreator(
                     "جستجو در فلاتر",
                     onChanged: _onSearchChanged,
-                    // controller: _searchController,
                     borderColor: AppColor.DarkTransparent,
+                    inputTextFontsize: 14,
+                    inputTextFontFamily: "Roboto",
                   ),
                 ),
               ),

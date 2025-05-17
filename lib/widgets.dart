@@ -229,18 +229,22 @@ Widget TextCreator(
 }
 
 Widget TextFildCreator(
-  labelText, {
-  hintText,
-  controller,
+  String labelText, {
+  String? hintText,
+  TextEditingController? controller,
   onChanged,
-  hide = false,
-  regfilter = r'.',
+  bool hide = false,
+  String regfilter = r'.',
   Color? hoverColor,
   Color? color,
-  borderColor = AppColor.ForeColor,
-  labelColor = const Color.fromARGB(255, 70, 70, 70),
-  radius = 14,
-  hintFontSize = 12,
+  Color borderColor = AppColor.ForeColor,
+  Color labelColor = const Color.fromARGB(255, 70, 70, 70),
+  double radius = 14,
+  double hintFontSize = 12,
+  FontWeight inputTextStyle = FontWeight.bold,
+  double inputTextFontsize = 16,
+  Color inputTextColor = const Color.fromARGB(106, 7, 7, 7),
+  String inputTextFontFamily = "Samin",
 }) {
   color = AppColor.BackForeColor0;
   // ignore: deprecated_member_use
@@ -270,6 +274,12 @@ Widget TextFildCreator(
         borderSide: BorderSide(color: borderColor, width: 1.5),
       ),
     ),
+    style: TextStyle(
+      color:inputTextColor,
+      fontSize: inputTextFontsize,
+      fontWeight: inputTextStyle,
+      fontFamily: inputTextFontFamily,
+    ),
   );
 }
 
@@ -285,7 +295,7 @@ Widget ButtonCreator(
   Color? color,
   radius = 14,
 }) {
-  color = AppColor.BackForeColor2;
+  color = color ?? AppColor.BackForeColor2;
 
   return SizedBox(
     width: width,
@@ -417,19 +427,19 @@ Widget ProductDisplay(
         Flexible(
           flex: 4,
           child: Padding(
-            padding: EdgeInsets.all(35),
+            padding: EdgeInsets.symmetric(horizontal: 35,vertical: 50),
             child: Image(image: AssetImage(picPach), fit: BoxFit.cover),
           ),
         ),
 
         Expanded(
           child: Container(
-            margin: EdgeInsets.fromLTRB(0, 0, 0, 10),
-          
+            margin: EdgeInsets.fromLTRB(5, 0, 5, 10),
+
             child: TextCreator(
               name,
               color: frontColor,
-              fontsize: 20,
+              fontsize:  name.length>19 ? 19 * (19/name.length) : 20,
               style: FontWeight.bold,
             ),
           ),
@@ -438,7 +448,7 @@ Widget ProductDisplay(
         Expanded(
           child: Container(
             margin: EdgeInsets.fromLTRB(15, 5, 15, 10),
-          
+
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: specifications,
@@ -448,8 +458,8 @@ Widget ProductDisplay(
 
         Expanded(
           child: Container(
-            margin: EdgeInsets.all(15),
-          
+            margin: EdgeInsets.symmetric(horizontal: 15,vertical: 10),
+
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.center,
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -457,13 +467,13 @@ Widget ProductDisplay(
                 ButtonCreator(
                   newTextButton,
                   onpress,
-                  width: 45,
-                  height: 40,
-                  padding: const EdgeInsets.all(5),
+                  width: 50,
+                  height: 50,
+                  padding: const EdgeInsets.symmetric(horizontal: 5),
                 ),
                 PriceShow(
                   price,
-                  fontsize: type == "laptop" ? 18 : 20,
+                  fontsize: type == "laptop" ? 18 : 19,
                   color: frontColor,
                   style: FontWeight.normal,
                 ),
@@ -471,6 +481,7 @@ Widget ProductDisplay(
             ),
           ),
         ),
+        SizedBox(height: 10,),
       ],
     ),
   );

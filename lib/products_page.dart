@@ -15,10 +15,28 @@ class ProductsVewPage extends StatefulWidget {
 
 class _ProductsVewPageState extends State<ProductsVewPage> {
   late List _products;
+  late List _filteredProducts;
+
   @override
   void initState() {
     super.initState();
     _products = Products.where((pr) => pr["type"] == widget.type).toList();
+    _filteredProducts = _products;
+  }
+
+  void _onChangeSherch(String query) {
+    setState(() {
+      if (query.isNotEmpty) {
+        _filteredProducts =
+            _products
+                .where(
+                  (pr) => pr["name"].toString().toLowerCase().contains(query),
+                )
+                .toList();
+      } else {
+        _filteredProducts = _products;
+      }
+    });
   }
 
   @override
@@ -41,10 +59,13 @@ class _ProductsVewPageState extends State<ProductsVewPage> {
                 SizedBox(width: 15),
                 Expanded(
                   child: SizedBox(
-                    height: 35,
+                    height: 40,
                     child: TextFildCreator(
                       "جستجو",
+                      onChanged: _onChangeSherch,
                       borderColor: AppColor.DarkTransparent,
+                      inputTextFontsize: 14,
+                      inputTextFontFamily: "Roboto",
                     ),
                   ),
                 ),
@@ -67,9 +88,9 @@ class _ProductsVewPageState extends State<ProductsVewPage> {
               crossAxisSpacing: 16,
               childAspectRatio: 3 / 5,
             ),
-            itemCount: _products.length,
+            itemCount: _filteredProducts.length,
             itemBuilder: (context, i) {
-              final produc = _products[i];
+              final produc = _filteredProducts[i];
               return ProductDisplay(
                 context,
                 int.parse(produc["ProductsID"]),
