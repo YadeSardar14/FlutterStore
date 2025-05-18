@@ -143,4 +143,4 @@ flutter:
 flutter_icons:
   android: true
   ios: true
-  image_path: "assets/FlutterStore.ico"
+  image_path: "assets/FlutterStore.png"

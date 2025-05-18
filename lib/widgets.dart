@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 import 'package:mobile_store/about_store.dart';
+import 'package:mobile_store/login_page.dart';
 import 'package:mobile_store/main_page.dart';
 import 'package:mobile_store/products_page.dart';
 import 'package:mobile_store/shoppingCart_page.dart';
@@ -107,7 +108,11 @@ List<Map<String, dynamic>> Categorys = [
 ];
 
 Future setProducts() async {
-  var response = await http.post(Url, headers: {"Content-Type": "application/x-www-form-urlencoded"}, body: {"state": "getproducts"});
+  var response = await http.post(
+    Url,
+    headers: {"Content-Type": "application/x-www-form-urlencoded"},
+    body: {"state": "getproducts"},
+  );
   if (response.statusCode == 200) {
     Products = json.decode(response.body) as List;
     return 1;
@@ -600,7 +605,13 @@ Widget DrawerMenu(
           } else {
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => Main(currentindex: 2)),
+              MaterialPageRoute(
+                builder:
+                    (context) =>
+                        currentUser.isEmpty
+                            ? LoginPage()
+                            : Main(currentindex: 2),
+              ),
             );
           }
         }),
@@ -610,7 +621,9 @@ Widget DrawerMenu(
         MenuCard('سبدخرید', Icons.shopping_bag_outlined, () {
           Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => CartPage()),
+            MaterialPageRoute(builder: (context) => currentUser.isEmpty
+                            ? LoginPage()
+                            :  CartPage()),
           );
         }),
 
@@ -620,7 +633,9 @@ Widget DrawerMenu(
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => Main(carttabindex: 1, currentindex: 1),
+              builder: (context) => currentUser.isEmpty
+                            ? LoginPage()
+                            :  Main(carttabindex: 1, currentindex: 1),
             ),
           );
         }),

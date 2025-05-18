@@ -2,7 +2,6 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:mobile_store/login_page.dart';
-import 'package:mobile_store/main_page.dart';
 import 'widgets.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
