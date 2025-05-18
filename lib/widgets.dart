@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
@@ -10,7 +11,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 //Defaults
 
-String host = "http://127.0.0.1/fluttershop/index.php";
+String host =
+    "http://192.168.183.54/fluttershop/index.php"; //"http://127.0.0.1/fluttershop/index.php";
 Uri Url = Uri.parse(host);
 
 List Products = List.empty();
@@ -24,23 +26,49 @@ num purCost = 0;
 List Purchases =
     []; //[{cost: 305590000, date: 2025-05-15 00:18:23.510, code: 546356556, orders: [{ProductID: 2, count: 1, price: 15790000}, {ProductID:3, count: 3, price: 12600000}, {ProductID: 1, count: 3, price: 84000000}]}]
 
+List asetsFile = [
+  "assets/pictures/back.jpg",
+  "assets/pictures/backin.jpg",
+  "assets/pictures/mobile.png",
+  "assets/pictures/laptop.png",
+  "assets/pictures/logo.png",
+  "assets/pictures/logo1.png",
+  "assets/pictures/welcome.png",
+  "assets/pictures/products/xiaomi-15.png",
+  "assets/pictures/products/xiaomi-redmi-note-14s.png",
+  "assets/pictures/products/xiaomi-redmi-14r.png",
+  "assets/pictures/products/xiaomi-14t-pro.png",
+  "assets/pictures/products/samsung-galaxy-z-flip5-5g.png",
+  "assets/pictures/products/asus-tuf-gaming-f15-fx507ze.png",
+  "assets/pictures/products/microsoft-surface-pro-9.png",
+  "assets/pictures/products/asus-rog-strix-g16.png",
+  // "asset: assets/fonts/Samim.ttf",
+  // "asset: assets/fonts/Automali.ttf",
+  // "asset: assets/fonts/Dhaniel.ttf",
+  // "asset: assets/fonts/Beirut.ttf",
+  // "asset: assets/fonts/Vazir.ttf",
+  // "asset: assets/fonts/Roboto.ttf",
+];
+
 class AppColor {
   static const Color BackColor = Color.fromARGB(255, 255, 207, 162);
   static const Color ForeColor = Color.fromARGB(255, 247, 119, 0);
-  static const Color DarkTransparent = Color.fromARGB(55, 83, 40, 0);
+  static const Color DarkTransparent = Color.fromARGB(230, 77, 37, 0);
 
   static const Color TextColor = Colors.white;
 
-  static Color BackForeColor0 = ForeColor.withValues(alpha: 170);
-  static Color BackForeColor1 = ForeColor.withValues(alpha: 130);
-  static Color BackForeColor2 = ForeColor.withValues(alpha: 90);
+  static Color BackForeColor0 = ForeColor.withOpacity(0.2);
+  static Color BackForeColor1 = ForeColor.withOpacity(0.3);
+  static Color BackForeColor2 = ForeColor.withOpacity(0.5);
 
-  static Color BackColor0 = BackColor.withValues(alpha: 160);
-  static Color BackColor1 = BackColor.withValues(alpha: 110);
-  static Color BackColor2 = BackColor.withValues(alpha: 60);
-  static Color BackColor3 = BackColor.withValues(alpha: 30);
+  static Color BackColor0 = BackColor.withOpacity(0.2);
+  static Color BackColor1 = BackColor.withOpacity(0.3);
+  static Color BackColor2 = BackColor.withOpacity(0.4);
+  static Color BackColor3 = BackColor.withOpacity(0.5);
 
-  static Color DarkTransparent1 = DarkTransparent.withValues(alpha: 140);
+  static Color DarkTransparent0 = DarkTransparent.withOpacity(0.2);
+  static Color DarkTransparent1 = DarkTransparent.withOpacity(0.45);
+  static Color DarkTransparent2 = DarkTransparent.withOpacity(0.6);
 }
 
 BoxDecoration MainBackGrondDecoration() {
@@ -66,12 +94,12 @@ BoxDecoration MainBackGrondInDecoration() {
 List<Map<String, dynamic>> Categorys = [
   {
     "picPatch": "assets/pictures/mobile.png",
-    "text": "گــــوشــــی مــوبـــایــل",
+    "text": "گــــوشــــی\nمــوبـــایــل",
     "nextPage": ProductsVewPage(type: "mobile"),
   },
   {
     "picPatch": "assets/pictures/laptop.png",
-    "text": "لــــــــــپ تـــــــــاپ",
+    "text": "لــــــــــپ\nتـــــــــاپ",
     "nextPage": ProductsVewPage(type: "laptop"),
   },
 ];
@@ -162,48 +190,59 @@ String priceFormater(int price) {
 Widget PriceShow(
   int price, {
   Color color = AppColor.ForeColor,
-  fontsize = 22,
-  fontsizedown = 12,
-  style = FontWeight.bold,
-  previoustext = "",
+  double fontsize = 22,
+  double fontsizedown = 12,
+  FontWeight style = FontWeight.bold,
+  String previoustext = "",
 }) {
-  return Row(
-    mainAxisSize: MainAxisSize.min,
-    children: [
-      TextCreator(
-        previoustext + priceFormater(price),
-        style: style,
-        color: color,
-        fontsize: fontsize,
-      ),
-      SizedBox(width: 5),
-      TextCreator(
-        "تومان ",
-        color: color.withValues(alpha: 80),
-        fontsize: fontsizedown,
-        style: style,
-      ),
-    ],
+  return FittedBox(
+    fit: BoxFit.scaleDown,
+    child: Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        TextCreator(
+          previoustext + priceFormater(price),
+          style: style,
+          color: color,
+          fontsize: fontsize,
+        ),
+
+        SizedBox(width: 5),
+
+        TextCreator(
+          "تومان ",
+          color: color.withValues(alpha: 80),
+          fontsize: fontsizedown,
+          style: style,
+        ),
+      ],
+    ),
   );
 }
 
 Widget IconPrInfo(
-  icon,
-  text, {
-  color = Colors.white,
-  fontsize = 10,
-  fontstyle,
-  iconsize = 18,
-  margin = 5,
+  IconData icon,
+  String text, {
+  Color color = Colors.white,
+  double fontsize = 10,
+  FontWeight? fontstyle,
+  double iconsize = 18,
+  double margin = 5,
 }) {
-  return Column(
-    mainAxisSize: MainAxisSize.min,
-    mainAxisAlignment: MainAxisAlignment.center,
-    children: [
-      Icon(icon, color: color, size: iconsize),
-      SizedBox(height: margin),
-      TextCreator(text, color: color, fontsize: fontsize, style: fontstyle),
-    ],
+  return FittedBox(
+    fit: BoxFit.scaleDown,
+    child: Padding(
+      padding: EdgeInsets.symmetric(horizontal: 8),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(icon, color: color, size: iconsize),
+          SizedBox(height: margin),
+          TextCreator(text, color: color, fontsize: fontsize, style: fontstyle),
+        ],
+      ),
+    ),
   );
 }
 
@@ -213,10 +252,14 @@ Widget TextCreator(
   Color color = AppColor.ForeColor,
   Color background = const Color.fromARGB(0, 0, 0, 0),
   FontWeight? style = FontWeight.normal,
-  String fontFamily = "Samin",
+  String fontFamily = "Vazir",
+  int? maxline,
 }) {
-  return Text(
+  return AutoSizeText(
     text,
+    maxLines: maxline,
+    overflow: TextOverflow.ellipsis,
+    softWrap: true,
     style: TextStyle(
       fontSize: fontsize,
       color: color,
@@ -225,6 +268,8 @@ Widget TextCreator(
       fontWeight: style,
       backgroundColor: background,
     ),
+    minFontSize: 8,
+    stepGranularity: 1,
   );
 }
 
@@ -274,8 +319,9 @@ Widget TextFildCreator(
         borderSide: BorderSide(color: borderColor, width: 1.5),
       ),
     ),
+
     style: TextStyle(
-      color:inputTextColor,
+      color: inputTextColor,
       fontSize: inputTextFontsize,
       fontWeight: inputTextStyle,
       fontFamily: inputTextFontFamily,
@@ -284,16 +330,16 @@ Widget TextFildCreator(
 }
 
 Widget ButtonCreator(
-  text,
+  String text,
   onPressed, {
-  fontsize = 18,
-  fontstyle = FontWeight.bold,
-  fontcolor = AppColor.TextColor,
-  height,
-  width = double.infinity,
-  padding = const EdgeInsets.all(15),
+  double fontsize = 18,
+  FontWeight fontstyle = FontWeight.bold,
+  Color fontcolor = AppColor.TextColor,
+  double? height,
+  double width = double.infinity,
+  EdgeInsetsGeometry padding = const EdgeInsets.all(15),
   Color? color,
-  radius = 14,
+  double radius = 14,
 }) {
   color = color ?? AppColor.BackForeColor2;
 
@@ -374,6 +420,7 @@ Widget CategoryDisplay(
                 padding: EdgeInsets.fromLTRB(5, 0, 50, 20),
                 child: TextCreator(
                   text,
+                  maxline: 2,
                   color: textColor,
                   fontsize: 40,
                   fontFamily: "Vazir",
@@ -399,9 +446,9 @@ Widget ProductDisplay(
   String type,
   List<Widget> specifications, {
   onpress,
-  buttonText = "+",
+  String buttonText = "+",
   Color? backgroundColor,
-  frontColor = AppColor.TextColor,
+  Color frontColor = AppColor.TextColor,
 }) {
   backgroundColor = AppColor.DarkTransparent1;
   String? newTextButton = buttonText;
@@ -427,67 +474,92 @@ Widget ProductDisplay(
         Flexible(
           flex: 4,
           child: Padding(
-            padding: EdgeInsets.symmetric(horizontal: 35,vertical: 50),
+            padding: EdgeInsets.symmetric(horizontal: 10, vertical: 20),
             child: Image(image: AssetImage(picPach), fit: BoxFit.cover),
           ),
         ),
 
         Expanded(
-          child: Container(
-            margin: EdgeInsets.fromLTRB(5, 0, 5, 10),
+          child: Padding(
+            padding: EdgeInsets.fromLTRB(10, 0, 10, 5),
 
-            child: TextCreator(
-              name,
-              color: frontColor,
-              fontsize:  name.length>19 ? 19 * (19/name.length) : 20,
-              style: FontWeight.bold,
+            child: FittedBox(
+              fit: BoxFit.scaleDown,
+              child: TextCreator(
+                name,
+                color: frontColor,
+                fontsize: 20, //name.length>19 ? 19 * (19/name.length) : 19,
+                style: FontWeight.bold,
+              ),
             ),
           ),
         ),
 
         Expanded(
           child: Container(
-            margin: EdgeInsets.fromLTRB(15, 5, 15, 10),
+            margin: EdgeInsets.fromLTRB(8, 5, 8, 8),
 
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: specifications,
+            child: FittedBox(
+              fit: BoxFit.scaleDown,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: specifications,
+              ),
             ),
           ),
         ),
 
         Expanded(
           child: Container(
-            margin: EdgeInsets.symmetric(horizontal: 15,vertical: 10),
+            margin: EdgeInsets.symmetric(horizontal: 10, vertical: 8),
 
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.center,
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                ButtonCreator(
-                  newTextButton,
-                  onpress,
-                  width: 50,
-                  height: 50,
-                  padding: const EdgeInsets.symmetric(horizontal: 5),
+                Flexible(
+                  child: ButtonCreator(
+                    newTextButton,
+                    onpress,
+                    fontsize: 14,
+                    width: 50,
+                    height: 50,
+                    padding: const EdgeInsets.symmetric(horizontal: 5),
+                  ),
                 ),
-                PriceShow(
-                  price,
-                  fontsize: type == "laptop" ? 18 : 19,
-                  color: frontColor,
-                  style: FontWeight.normal,
+
+                Flexible(
+                  flex: 3,
+                  fit: FlexFit.loose,
+                  child: Align(
+                    alignment: Alignment.centerLeft,
+                    child: Padding(
+                      padding: EdgeInsets.fromLTRB(0, 0, 10, 0),
+                      child: PriceShow(
+                        price,
+                        fontsize: type == "laptop" ? 19 : 20,
+                        color: frontColor,
+                        style: FontWeight.bold,
+                      ),
+                    ),
+                  ),
                 ),
               ],
             ),
           ),
         ),
-        SizedBox(height: 10,),
+        SizedBox(height: type == "mobile" ? 22 : 10),
       ],
     ),
   );
 }
 
-Widget DrawerMenu(BuildContext context, {int maunPageIdex = 2}) {
+Widget DrawerMenu(
+  BuildContext context, {
+  int maunPageIdex = 2,
+  VoidCallback? onOpen,
+}) {
+  onOpen?.call();
   return Drawer(
     backgroundColor: const Color.fromARGB(26, 255, 224, 224),
     child: ListView(

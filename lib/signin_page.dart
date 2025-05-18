@@ -26,7 +26,7 @@ class _SigninPageState extends State<SigninPage> {
     } else if (_number.text.length != 11) {
       alert(context, 'لطفا یک شماره معتبر وارد کنید.');
       return;
-    } else if (_username.text.length < 4 || _password.text.length < 4) {
+    } else if (_username.text.length < 4 || _password0.text.length < 4) {
       alert(context, 'نام کاربری و پسورد باید حداقل 4 کاراکتر باشند.');
       return;
     } else {

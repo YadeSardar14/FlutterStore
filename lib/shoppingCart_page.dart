@@ -40,6 +40,8 @@ class _CartPageState extends State<CartPage>
             bottom: TabBar(
               controller: _tabController,
               tabs: <Widget>[Tab(text: 'سبد خرید'), Tab(text: 'خرید های قبلی')],
+              labelColor:AppColor.DarkTransparent2,
+              indicatorColor: AppColor.DarkTransparent,
             ),
           ),
           body: TabBarView(
@@ -52,7 +54,7 @@ class _CartPageState extends State<CartPage>
                         cart.isNotEmpty
                             ? BottomAppBar(
                               color: const Color.fromARGB(104, 255, 255, 255),
-                              shadowColor: AppColor.DarkTransparent,
+                              shadowColor: AppColor.DarkTransparent0,
                               child: Row(
                                 mainAxisSize: MainAxisSize.max,
                                 children: [
@@ -118,7 +120,8 @@ class _CartPageState extends State<CartPage>
                                         setState(() {
                                           cart.clear();
                                         });
-                                      }),
+                                        
+                                      }, fontstyle: FontWeight.bold),
                                     ),
                                   ),
                                   Align(
@@ -249,7 +252,7 @@ class _CartPageState extends State<CartPage>
                         gridDelegate:
                             const SliverGridDelegateWithFixedCrossAxisCount(
                               crossAxisCount: 1,
-                              mainAxisSpacing: 16,
+                              mainAxisSpacing: 4,
                               crossAxisSpacing: 16,
                               childAspectRatio: 3 / 1,
                             ),
@@ -259,16 +262,18 @@ class _CartPageState extends State<CartPage>
                         
                           return InkWell(
                             onTap: () {},
+                             
                             child: Card(
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(10),
                               ),
-                              color: AppColor.DarkTransparent,
+                              color: AppColor.DarkTransparent0,
                               child: Padding(
                                 padding: EdgeInsets.symmetric(
                                   horizontal: 12,
                                   vertical: 12,
                                 ),
+                                
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.end,
                                   children: [
@@ -310,24 +315,28 @@ class _CartPageState extends State<CartPage>
                                         children: [
                                           Expanded(
                                             child: Row(
+                                              mainAxisSize: MainAxisSize.min,
+                                              mainAxisAlignment: MainAxisAlignment.start,
                                               children:
-                                                  order['orders'].take(4)
+                                                  order['orders'].take(3)
                                                       .map<Widget>(
-                                                        (ord) => Padding(
-                                                          padding:
-                                                              const EdgeInsets.symmetric(
-                                                                horizontal: 4.0,
+                                                        (ord) =>  Padding(
+                                                              padding:
+                                                                  const EdgeInsets.symmetric(
+                                                                    horizontal: 4.0,
+                                                                  ),
+                                                              child: Image.asset(
+                                                                Products.firstWhere(
+                                                                  (p) =>
+                                                                      ord["ProductID"] ==
+                                                                      p["ProductsID"],
+                                                                )["picPatch"],
+                                                                width: 35,
+                                                                height: 35,
                                                               ),
-                                                          child: Image.asset(
-                                                            Products.firstWhere(
-                                                              (p) =>
-                                                                  ord["ProductID"] ==
-                                                                  p["ProductsID"],
-                                                            )["picPatch"],
-                                                            width: 35,
-                                                            height: 35,
+                                                            
                                                           ),
-                                                        ),
+                                                        
                                                       )
                                                       .toList(),
                                             ),

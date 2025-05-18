@@ -113,27 +113,32 @@ class _LoginPageState extends State<LoginPage> {
 
                     Padding(
                       padding: EdgeInsets.fromLTRB(70, 0, 70, 20),
-                      child: Row(
-                        children: [
-                          TextCreator(
-                            '  حساب کاربری ندارید؟',
-                            style: FontWeight.bold,
-                            color: AppColor.BackForeColor2,
-                          ),
-                          InkWell(
-                            child: TextCreator(
-                              ' ثبت نام کنید.',
-                              fontsize: 14,
-                              style: FontWeight.bold,
-                            ),
-                            onTap: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(builder:  (context) => SigninPage()),
-                              );
-                            },
-                          ),
-                        ],
+                      child: FittedBox(
+                        fit: BoxFit.scaleDown,
+                        child: Row(
+                          children: [
+                            
+                               TextCreator(
+                                'حساب کاربری ندارید؟',
+                                style: FontWeight.bold,
+                                color: AppColor.BackForeColor2,
+                              ),
+                           InkWell(
+                                child: TextCreator(
+                                  ' ثبت نام کنید.',
+                                  fontsize: 14,
+                                  style: FontWeight.bold,
+                                ),
+                                onTap: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(builder:  (context) => SigninPage()),
+                                  );
+                                },
+                              ),
+                            
+                          ],
+                        ),
                       ),
                     ),
                   ],

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:mobile_store/main_page.dart';
-
+import 'package:mobile_store/widgets.dart';
 
 class App extends StatelessWidget {
   const App({super.key});
@@ -13,7 +13,14 @@ class App extends StatelessWidget {
       locale: const Locale("fa"),
       supportedLocales: const [Locale('fa')],
       localizationsDelegates: GlobalMaterialLocalizations.delegates,
-      theme: ThemeData(primarySwatch: Colors.amber, fontFamily: "Samim"),
+      theme: ThemeData(
+        primarySwatch: Colors.amber,
+        textSelectionTheme: TextSelectionThemeData(
+          selectionColor: AppColor.BackForeColor1,
+              selectionHandleColor: AppColor.ForeColor,
+        ),
+        fontFamily: "Samim",
+      ),
       home: Main(),
     );
   }
