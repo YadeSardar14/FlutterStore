@@ -154,7 +154,7 @@ class _ProductsVewPageState extends State<ProductsVewPage> {
                   );
 
                   if (order.isEmpty) {
-                    await http.post(
+                    var t = await http.post(
                       Url,
                       body: {
                         "state": "setorder",
@@ -162,6 +162,7 @@ class _ProductsVewPageState extends State<ProductsVewPage> {
                         "user_id": currentUser["UsersID"].toString(),
                       },
                     );
+                    print(t.body);
                   } else if (order["count"].toString() == "4") {
                     alert(context, "شما به حداکثر تعداد قابل سفارش رسیدید.");
                   } else {

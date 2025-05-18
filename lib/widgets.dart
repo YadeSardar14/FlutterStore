@@ -11,8 +11,10 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 //Defaults
 
-String host =
-    "http://192.168.183.54/fluttershop/index.php"; //"http://127.0.0.1/fluttershop/index.php";
+// String host = "http://192.168.183.54/fluttershop/index.php";
+//String host = "http://127.0.0.1/fluttershop/index.php";
+// String host = "https://mk14.kesug.com/fluttershop/index.php";
+String host = "https://testforflutterwebserver.onrender.com";
 Uri Url = Uri.parse(host);
 
 List Products = List.empty();
@@ -105,7 +107,7 @@ List<Map<String, dynamic>> Categorys = [
 ];
 
 Future setProducts() async {
-  var response = await http.post(Url, body: {"state": "getproducts"});
+  var response = await http.post(Url, headers: {"Content-Type": "application/x-www-form-urlencoded"}, body: {"state": "getproducts"});
   if (response.statusCode == 200) {
     Products = json.decode(response.body) as List;
     return 1;
@@ -299,6 +301,7 @@ Widget TextFildCreator(
     controller: controller,
     onChanged: onChanged,
     obscureText: hide,
+    cursorColor: const Color.fromARGB(117, 0, 0, 0),
     inputFormatters: [FilteringTextInputFormatter.allow(RegExp(regfilter))],
     decoration: InputDecoration(
       labelText: labelText,
