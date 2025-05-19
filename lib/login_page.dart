@@ -1,11 +1,11 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:http/http.dart' as http;
 import 'package:mobile_store/main_page.dart';
 import 'package:mobile_store/signin_page.dart';
 import 'widgets.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -17,6 +17,7 @@ class LoginPage extends StatefulWidget {
 class _LoginPageState extends State<LoginPage> {
   final TextEditingController _username = TextEditingController();
   final TextEditingController _password = TextEditingController();
+  bool _loadng = false;
 
   Future<void> checkUser(BuildContext context) async {
     if (_username.text.length < 4 || _password.text.length < 4) {
@@ -34,14 +35,20 @@ class _LoginPageState extends State<LoginPage> {
 
       if (response.statusCode == 200) {
         if (jsonDecode(response.body)[0]["status"] != "notmatch") {
+          setState(() {
+            _loadng = true;
+          });
           currentUser = jsonDecode(response.body)[0];
 
           final prefs = await SharedPreferences.getInstance();
           await prefs.setString("UserID", currentUser["UsersID"].toString());
 
-          setProducts();
-          setCart();
-          setPurchases();
+          await setProducts();
+          await setCart();
+          await setPurchases();
+          setState(() {
+            _loadng = false;
+          });
           Navigator.push(
             context,
             MaterialPageRoute(builder: (context) => Main()),
@@ -117,30 +124,32 @@ class _LoginPageState extends State<LoginPage> {
                         fit: BoxFit.scaleDown,
                         child: Row(
                           children: [
-                            
-                               TextCreator(
-                                'حساب کاربری ندارید؟',
+                            TextCreator(
+                              'حساب کاربری ندارید؟',
+                              style: FontWeight.bold,
+                              color: AppColor.BackForeColor2,
+                            ),
+                            InkWell(
+                              child: TextCreator(
+                                ' ثبت نام کنید.',
+                                fontsize: 14,
                                 style: FontWeight.bold,
-                                color: AppColor.BackForeColor2,
                               ),
-                           InkWell(
-                                child: TextCreator(
-                                  ' ثبت نام کنید.',
-                                  fontsize: 14,
-                                  style: FontWeight.bold,
-                                ),
-                                onTap: () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(builder:  (context) => SigninPage()),
-                                  );
-                                },
-                              ),
-                            
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => SigninPage(),
+                                  ),
+                                );
+                              },
+                            ),
                           ],
                         ),
                       ),
                     ),
+                    if (_loadng)
+                      SpinKitThreeBounce(color: AppColor.BackColor, size: 30),
                   ],
                 ),
               ),

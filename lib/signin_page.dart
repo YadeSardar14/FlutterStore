@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:http/http.dart' as http;
 import 'package:mobile_store/login_page.dart';
 import 'widgets.dart';
@@ -18,6 +19,7 @@ class _SigninPageState extends State<SigninPage> {
   final TextEditingController _password0 = TextEditingController();
   final TextEditingController _name = TextEditingController();
   final TextEditingController _number = TextEditingController();
+  bool _loadng = false;
 
   Future<void> checkAndSaveUser(BuildContext context) async {
     if (_name.text.isEmpty || _number.text.isEmpty) {
@@ -47,6 +49,9 @@ class _SigninPageState extends State<SigninPage> {
       } else if (_password.text != _password0.text) {
         alert(context, "تاییدیه رمز عبور باهم مطابقت ندارند.");
       } else if (res.statusCode == 200) {
+        setState(() {
+          _loadng = true;
+        });
         var res = await http.post(
           Url,
           body: {
@@ -72,10 +77,9 @@ class _SigninPageState extends State<SigninPage> {
               "username": _username.text.toString(),
             },
           );
-  
+
           if (UserID.statusCode == 200) {
-            currentUser["UsersID"] =
-                jsonDecode(UserID.body)[0]["UsersID"];
+            currentUser["UsersID"] = jsonDecode(UserID.body)[0]["UsersID"];
 
             final prefs = await SharedPreferences.getInstance();
             await prefs.setString("UserID", currentUser["UsersID"]);
@@ -85,6 +89,9 @@ class _SigninPageState extends State<SigninPage> {
           Purchases.clear();
           cost = 0;
           purCost = 0;
+          setState(() {
+            _loadng = false;
+          });
           alert(context, "حساب شما با موفقیت ایجاد گردید.");
 
           Navigator.push(
@@ -176,6 +183,8 @@ class _SigninPageState extends State<SigninPage> {
                         () => checkAndSaveUser(context),
                       ),
                     ),
+                    if (_loadng)
+                      SpinKitThreeBounce(color: AppColor.BackColor, size: 30),
                   ],
                 ),
               ),

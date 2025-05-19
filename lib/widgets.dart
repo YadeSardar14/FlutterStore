@@ -114,7 +114,7 @@ Future setProducts() async {
     headers: {"Content-Type": "application/x-www-form-urlencoded"},
     body: {"state": "getproducts"},
   );
-  // print(response.body);
+ 
   if (response.statusCode == 200) {
     Products = json.decode(response.body) as List;
     return 1;
@@ -660,6 +660,8 @@ Widget DrawerMenu(
           final prefs = await SharedPreferences.getInstance();
           await prefs.clear();
           currentUser.clear();
+          cart.clear();
+          Purchases.clear();
           cost = 0;
           purCost = 0;
 
