@@ -36,7 +36,6 @@ class _MainPage extends State<Main> {
         currentUser = jsonDecode(response.body)[0];
       }
 
-      await setProducts();
       await setCart();
       await setPurchases();
     }
@@ -61,7 +60,14 @@ class _MainPage extends State<Main> {
       locale: const Locale("fa"),
       supportedLocales: const [Locale('fa')],
       localizationsDelegates: GlobalMaterialLocalizations.delegates,
-      theme: ThemeData(primarySwatch: Colors.amber, fontFamily: "Samim"),
+      theme: ThemeData(
+        primarySwatch: Colors.amber,
+        textSelectionTheme: TextSelectionThemeData(
+          selectionColor: AppColor.BackForeColor1,
+          selectionHandleColor: AppColor.ForeColor,
+        ),
+        fontFamily: "Samim",
+      ),
       home: Container(
         decoration: MainBackGrondInDecoration(),
         child: Scaffold(

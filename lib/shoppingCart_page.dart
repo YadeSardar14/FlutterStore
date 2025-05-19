@@ -40,7 +40,7 @@ class _CartPageState extends State<CartPage>
             bottom: TabBar(
               controller: _tabController,
               tabs: <Widget>[Tab(text: 'سبد خرید'), Tab(text: 'خرید های قبلی')],
-              labelColor:AppColor.DarkTransparent2,
+              labelColor: AppColor.DarkTransparent2,
               indicatorColor: AppColor.DarkTransparent,
             ),
           ),
@@ -107,7 +107,7 @@ class _CartPageState extends State<CartPage>
                                           "سفارش شما با موفقیت ثبت شد.",
                                         );
 
-                                        cart.forEach((ord) async {
+                                        for (var ord in cart) {
                                           await http.post(
                                             Url,
                                             body: {
@@ -115,12 +115,11 @@ class _CartPageState extends State<CartPage>
                                               "OrdersID": ord["OrdersID"],
                                             },
                                           );
-                                        });
+                                        }
 
                                         setState(() {
                                           cart.clear();
                                         });
-                                        
                                       }, fontstyle: FontWeight.bold),
                                     ),
                                   ),
@@ -259,10 +258,10 @@ class _CartPageState extends State<CartPage>
                         itemCount: Purchases.length,
                         itemBuilder: (context, i) {
                           Map order = Purchases[i];
-                        
+
                           return InkWell(
                             onTap: () {},
-                             
+
                             child: Card(
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(10),
@@ -273,7 +272,7 @@ class _CartPageState extends State<CartPage>
                                   horizontal: 12,
                                   vertical: 12,
                                 ),
-                                
+
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.end,
                                   children: [
@@ -316,27 +315,27 @@ class _CartPageState extends State<CartPage>
                                           Expanded(
                                             child: Row(
                                               mainAxisSize: MainAxisSize.min,
-                                              mainAxisAlignment: MainAxisAlignment.start,
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.start,
                                               children:
-                                                  order['orders'].take(3)
+                                                  order['orders']
+                                                      .take(3)
                                                       .map<Widget>(
-                                                        (ord) =>  Padding(
-                                                              padding:
-                                                                  const EdgeInsets.symmetric(
-                                                                    horizontal: 4.0,
-                                                                  ),
-                                                              child: Image.asset(
-                                                                Products.firstWhere(
-                                                                  (p) =>
-                                                                      ord["ProductID"] ==
-                                                                      p["ProductsID"],
-                                                                )["picPatch"],
-                                                                width: 35,
-                                                                height: 35,
+                                                        (ord) => Padding(
+                                                          padding:
+                                                              const EdgeInsets.symmetric(
+                                                                horizontal: 4.0,
                                                               ),
-                                                            
+                                                          child: Image.asset(
+                                                            Products.firstWhere(
+                                                              (p) =>
+                                                                  ord["ProductID"] ==
+                                                                  p["ProductsID"],
+                                                            )["picPatch"],
+                                                            width: 35,
+                                                            height: 35,
                                                           ),
-                                                        
+                                                        ),
                                                       )
                                                       .toList(),
                                             ),

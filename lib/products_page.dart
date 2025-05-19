@@ -17,11 +17,18 @@ class _ProductsVewPageState extends State<ProductsVewPage> {
   late List _products;
   late List _filteredProducts;
 
+  Future<void> SetPr() async {
+    await setProducts();
+    setState(() {});
+  }
+
   @override
-  void initState() {
+  initState() {
     super.initState();
     _products = Products.where((pr) => pr["type"] == widget.type).toList();
     _filteredProducts = _products;
+
+    SetPr();
   }
 
   void _onChangeSherch(String query) {
@@ -154,7 +161,7 @@ class _ProductsVewPageState extends State<ProductsVewPage> {
                   );
 
                   if (order.isEmpty) {
-                    var t = await http.post(
+                    await http.post(
                       Url,
                       body: {
                         "state": "setorder",
@@ -162,7 +169,6 @@ class _ProductsVewPageState extends State<ProductsVewPage> {
                         "user_id": currentUser["UsersID"].toString(),
                       },
                     );
-                    print(t.body);
                   } else if (order["count"].toString() == "4") {
                     alert(context, "شما به حداکثر تعداد قابل سفارش رسیدید.");
                   } else {

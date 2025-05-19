@@ -16,18 +16,19 @@ import 'package:shared_preferences/shared_preferences.dart';
 //String host = "http://127.0.0.1/fluttershop/index.php";
 // String host = "https://mk14.kesug.com/fluttershop/index.php";
 String host = "https://testforflutterwebserver.onrender.com";
+
 Uri Url = Uri.parse(host);
 
-List Products = List.empty();
+List Products = List.empty(growable: true);
 
-Map currentUser =
-    {}; // {  "UsersID": "1",  "username": "mk1404",  "password": "mk1234",  "name": " محمد کریمی",};
+Map currentUser = {};
+// {  "UsersID": "1",  "username": "mk1404",  "password": "mk1234",  "name": " محمد کریمی",};
 
-List cart = List.empty();
+List cart = List.empty(growable: true);
 num cost = 0;
 num purCost = 0;
-List Purchases =
-    []; //[{cost: 305590000, date: 2025-05-15 00:18:23.510, code: 546356556, orders: [{ProductID: 2, count: 1, price: 15790000}, {ProductID:3, count: 3, price: 12600000}, {ProductID: 1, count: 3, price: 84000000}]}]
+List Purchases = List.empty(growable: true);
+//[{cost: 305590000, date: 2025-05-15 00:18:23.510, code: 546356556, orders: [{ProductID: 2, count: 1, price: 15790000}, {ProductID:3, count: 3, price: 12600000}, {ProductID: 1, count: 3, price: 84000000}]}]
 
 List asetsFile = [
   "assets/pictures/back.jpg",
@@ -113,6 +114,7 @@ Future setProducts() async {
     headers: {"Content-Type": "application/x-www-form-urlencoded"},
     body: {"state": "getproducts"},
   );
+  // print(response.body);
   if (response.statusCode == 200) {
     Products = json.decode(response.body) as List;
     return 1;
@@ -621,9 +623,10 @@ Widget DrawerMenu(
         MenuCard('سبدخرید', Icons.shopping_bag_outlined, () {
           Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => currentUser.isEmpty
-                            ? LoginPage()
-                            :  CartPage()),
+            MaterialPageRoute(
+              builder:
+                  (context) => currentUser.isEmpty ? LoginPage() : CartPage(),
+            ),
           );
         }),
 
@@ -633,9 +636,11 @@ Widget DrawerMenu(
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => currentUser.isEmpty
-                            ? LoginPage()
-                            :  Main(carttabindex: 1, currentindex: 1),
+              builder:
+                  (context) =>
+                      currentUser.isEmpty
+                          ? LoginPage()
+                          : Main(carttabindex: 1, currentindex: 1),
             ),
           );
         }),

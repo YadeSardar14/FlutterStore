@@ -72,18 +72,20 @@ class _SigninPageState extends State<SigninPage> {
               "username": _username.text.toString(),
             },
           );
+  
+          if (UserID.statusCode == 200) {
+            currentUser["UsersID"] =
+                jsonDecode(UserID.body)[0]["UsersID"];
 
-          final prefs = await SharedPreferences.getInstance();
-          await prefs.setString(
-            "UserID",
-            jsonDecode(UserID.body)[0]["UsersID"].toString(),
-          );
-
-          setProducts();
+            final prefs = await SharedPreferences.getInstance();
+            await prefs.setString("UserID", currentUser["UsersID"]);
+          }
+          await setProducts();
           cart.clear();
           Purchases.clear();
           cost = 0;
           purCost = 0;
+          alert(context, "حساب شما با موفقیت ایجاد گردید.");
 
           Navigator.push(
             context,
