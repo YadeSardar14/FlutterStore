@@ -2,6 +2,8 @@ import 'dart:convert';
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:mobile_store/default_value.dart';
+import 'package:shamsi_date/shamsi_date.dart';
 import 'widgets.dart';
 import 'package:intl/intl.dart';
 
@@ -15,11 +17,12 @@ class CartPage extends StatefulWidget {
 class _CartPageState extends State<CartPage>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
+  late final _date = Jalali.now().formatter;
 
   @override
   void initState() {
     super.initState();
-
+  
     _tabController = TabController(
       length: 2,
       vsync: this,
@@ -88,9 +91,8 @@ class _CartPageState extends State<CartPage>
                                             "userid":
                                                 currentUser["UsersID"]
                                                     .toString(),
-                                            "date": DateFormat(
-                                              'yyyy-MM-dd',
-                                            ).format(DateTime.now()),
+                                            "date":
+                                                '${_date.d} ${_date.mN} ${_date.yyyy}',
                                             "time": DateFormat(
                                               'HH:mm',
                                             ).format(DateTime.now()),
@@ -204,6 +206,7 @@ class _CartPageState extends State<CartPage>
                                     ),
                                   ]
                                   : [],
+                              picPatchType: produc["picPatchType"],
                               buttonText: "✘",
                               onpress: () async {
                                 Map order = cart.firstWhere(
@@ -297,7 +300,7 @@ class _CartPageState extends State<CartPage>
                                       child: Align(
                                         alignment: Alignment.topRight,
                                         child: TextCreator(
-                                          "${order['date']}       -       ${order["time"].substring(0, 5)}",
+                                          "${order['date']} - ${order["time"].substring(0, 5)}",
                                           fontsize: 12,
                                           color: const Color.fromARGB(
                                             146,

@@ -1,4 +1,10 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:http/http.dart' as http;
+import 'package:mobile_store/default_value.dart';
+import 'package:mobile_store/products_page.dart';
 import 'widgets.dart';
 
 class HomePage extends StatefulWidget {
@@ -10,6 +16,7 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   final LayerLink _layerLink = LayerLink();
   OverlayEntry? _overlayEntry;
+  late bool _loading = true;
 
   void _onSearchChanged(String query) {
     _overlayEntry?.remove();
@@ -67,7 +74,12 @@ class _HomePageState extends State<HomePage> {
                       child: ListTile(
                         leading: Padding(
                           padding: EdgeInsets.symmetric(vertical: 3),
-                          child: Image(image: AssetImage(product["picPatch"])),
+                          child: Image(
+                            image:
+                                product["picPatchType"] == "URL"
+                                    ? NetworkImage(product["picPatch"])
+                                    : AssetImage(product["picPatch"]),
+                          ),
                         ),
                         title: TextCreator(
                           fontsize: 14,
@@ -88,6 +100,23 @@ class _HomePageState extends State<HomePage> {
             ),
           ),
     );
+  }
+
+  Future _SetCategories() async {
+    var response = (await http.post(Url, body: {"state": "getcategories"}));
+    if (response.statusCode == 200) {
+      Categorys = jsonDecode(response.body);
+    }
+
+    setState(() {
+      _loading = false;
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _SetCategories();
   }
 
   @override
@@ -147,31 +176,40 @@ class _HomePageState extends State<HomePage> {
           }
         },
 
-        body: Container(
-          child: GridView.builder(
-            padding: EdgeInsets.all(35),
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 1,
-              mainAxisSpacing: 16,
-              crossAxisSpacing: 16,
-              childAspectRatio: 7 / 4,
-            ),
-            itemCount: Categorys.length,
-            itemBuilder: (context, i) {
-              Map item = Categorys[i];
-              return CategoryDisplay(
-                item["picPatch"],
-                text: item["text"],
-                onpress: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => item["nextPage"]),
-                  );
-                },
-              );
-            },
-          ),
-        ),
+        body:
+            _loading
+                ? SpinKitThreeBounce(color: AppColor.BackColor, size: 30)
+                : Container(
+                  child: GridView.builder(
+                    padding: EdgeInsets.all(35),
+                    gridDelegate:
+                        const SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 1,
+                          mainAxisSpacing: 16,
+                          crossAxisSpacing: 16,
+                          childAspectRatio: 7 / 4,
+                        ),
+                    itemCount: Categorys.length,
+                    itemBuilder: (context, i) {
+                      Map item = Categorys[i];
+                      return CategoryDisplay(
+                        item["picPatch"],
+                        picPatchType: item["picPatchType"],
+                        text: item["name"],
+                        onpress: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder:
+                                  (context) =>
+                                      ProductsVewPage(type: item["type"]),
+                            ),
+                          );
+                        },
+                      );
+                    },
+                  ),
+                ),
         backgroundColor: Colors.transparent,
       ),
     );

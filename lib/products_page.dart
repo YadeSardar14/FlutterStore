@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:http/http.dart' as http;
+import 'package:mobile_store/default_value.dart';
 import 'package:mobile_store/login_page.dart';
 import 'package:mobile_store/test.dart';
 import 'widgets.dart';
@@ -155,6 +156,7 @@ class _ProductsVewPageState extends State<ProductsVewPage> {
                               ),
                             ]
                             : [],
+                            picPatchType: produc["picPatchType"],
                         buttonText: "+",
                         onpress: () async {
                           if (currentUser.isEmpty) {

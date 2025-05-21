@@ -1,7 +1,10 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:http/http.dart' as http;
+import 'package:mobile_store/default_value.dart';
 import 'package:mobile_store/home_page.dart';
 import 'package:mobile_store/info_page.dart';
 import 'package:mobile_store/login_page.dart';
@@ -23,7 +26,7 @@ class _MainPage extends State<Main> {
   late int _currentindex;
   List MainPages = List.empty();
 
-  _CheckInitUser() async {
+  Future _CheckInitUser() async {
     final prefs = await SharedPreferences.getInstance();
     if (prefs.containsKey("UserID") && currentUser.isEmpty) {
       String? UserID = await prefs.getString("UserID");

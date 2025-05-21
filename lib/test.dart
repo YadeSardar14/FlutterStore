@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:mobile_store/default_value.dart';
+import 'package:mobile_store/widgets.dart';
 
 class ProductDetailPage extends StatefulWidget {
-  final Map<String, dynamic> product;
+  // final Map<String, dynamic> product;
 
-  const ProductDetailPage({Key? key, required this.product}) : super(key: key);
+  const ProductDetailPage({Key? key}) : super(key: key);
 
   @override
   _ProductDetailPageState createState() => _ProductDetailPageState();
@@ -12,9 +14,27 @@ class ProductDetailPage extends StatefulWidget {
 class _ProductDetailPageState extends State<ProductDetailPage> {
   int _quantity = 1;
 
+Future<void> SetPr() async {
+    await setProducts();
+    
+    setState(() {
+      
+    });
+    
+  }
+
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+  
+    SetPr();  print(Products);
+  }
+
   @override
   Widget build(BuildContext context) {
-    final product = widget.product;
+    final product = Products[0];
     return Scaffold(
       backgroundColor: Colors.grey[100],
       appBar: AppBar(
@@ -74,7 +94,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                     ),
                     SizedBox(height: 8),
                     Text(
-                      "\$${product['price'].toStringAsFixed(2)}",
+                      "\$${double.tryParse(product['price']).toString()}",
                       style: TextStyle(
                         fontSize: 20,
                         color: Colors.green[700],
@@ -92,7 +112,10 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                       children: [
                         Text(
                           'تعداد:',
-                          style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w500,
+                          ),
                         ),
                         SizedBox(width: 16),
                         Container(

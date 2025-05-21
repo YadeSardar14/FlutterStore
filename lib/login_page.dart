@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:http/http.dart' as http;
+import 'package:mobile_store/default_value.dart';
 import 'package:mobile_store/main_page.dart';
 import 'package:mobile_store/signin_page.dart';
 import 'widgets.dart';
@@ -23,6 +24,9 @@ class _LoginPageState extends State<LoginPage> {
     if (_username.text.length < 4 || _password.text.length < 4) {
       alert(context, 'نام کاربری و پسورد باید حداقل 4 کاراکتر باشند.');
     } else {
+      setState(() {
+        _loadng = true;
+      });
       final response = await http.post(
         Url,
         body: {
@@ -35,9 +39,6 @@ class _LoginPageState extends State<LoginPage> {
 
       if (response.statusCode == 200) {
         if (jsonDecode(response.body)[0]["status"] != "notmatch") {
-          setState(() {
-            _loadng = true;
-          });
           currentUser = jsonDecode(response.body)[0];
 
           final prefs = await SharedPreferences.getInstance();
@@ -46,10 +47,8 @@ class _LoginPageState extends State<LoginPage> {
           await setProducts();
           await setCart();
           await setPurchases();
-          setState(() {
-            _loadng = false;
-          });
-          Navigator.push(
+
+          Navigator.pushReplacement(
             context,
             MaterialPageRoute(builder: (context) => Main()),
           );
@@ -59,6 +58,9 @@ class _LoginPageState extends State<LoginPage> {
       } else {
         alert(context, "مشکلی پیش آمده لطفا کمی بعد امتحان کنید.");
       }
+      setState(() {
+        _loadng = false;
+      });
     }
   }
 
