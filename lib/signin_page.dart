@@ -180,12 +180,15 @@ class _SigninPageState extends State<SigninPage> {
                     Padding(
                       padding: EdgeInsets.fromLTRB(70, 25, 70, 20),
                       child: ButtonCreator(
-                        'ثبت نام',
+                        _loadng
+                            ? SpinKitThreeBounce(
+                              color: AppColor.BackColor,
+                              size: 25,
+                            )
+                            : 'ثبت نام',
                         () => checkAndSaveUser(context),
                       ),
                     ),
-                    if (_loadng)
-                      SpinKitThreeBounce(color: AppColor.BackColor, size: 30),
                   ],
                 ),
               ),

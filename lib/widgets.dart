@@ -2,14 +2,16 @@ import 'dart:convert';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:http/http.dart' as http;
 import 'package:mobile_store/about_store.dart';
 import 'package:mobile_store/default_value.dart';
 import 'package:mobile_store/login_page.dart';
 import 'package:mobile_store/main_page.dart';
 import 'package:mobile_store/shoppingCart_page.dart';
+import 'package:path/path.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
+import 'package:sqflite/sqflite.dart';
 
 Future setProducts() async {
   var response = await http.post(
@@ -17,9 +19,20 @@ Future setProducts() async {
     headers: {"Content-Type": "application/x-www-form-urlencoded"},
     body: {"state": "getproducts"},
   );
- 
+
   if (response.statusCode == 200) {
     Products = json.decode(response.body) as List;
+    return 1;
+  } else {
+    return 0;
+  }
+}
+
+Future setCategories() async {
+  var response = await http.post(Url, body: {"state": "getcategories"});
+
+  if (response.statusCode == 200) {
+    Categorys = jsonDecode(response.body) as List;
     return 1;
   } else {
     return 0;
@@ -40,14 +53,22 @@ Future setCart() async {
     if (cart.isNotEmpty) {
       cost = 0;
       for (Map ord in cart) {
-        cost +=
-            int.parse(
-              Products.firstWhere(
-                (p) =>
-                    p["ProductsID"].toString() == ord["ProductID"].toString(),
-              )["price"],
-            ) *
-            int.parse(ord["count"].toString());
+        int inventory = int.parse(
+          Products.firstWhere(
+            (p) => p["ProductsID"].toString() == ord["ProductID"].toString(),
+          )["inventory"],
+        );
+        ord["available"] = inventory > int.parse(ord["count"]);
+        if (ord["available"] || inventory == int.parse(ord["count"])) {
+          cost +=
+              int.parse(
+                Products.firstWhere(
+                  (p) =>
+                      p["ProductsID"].toString() == ord["ProductID"].toString(),
+                )["price"],
+              ) *
+              int.parse(ord["count"].toString());
+        }
       }
     } else {
       cost = 0;
@@ -80,6 +101,39 @@ Future setPurchases() async {
       return 0;
     }
   }
+}
+
+Future<Database> getDatabase() async {
+  final path = join(await getDatabasesPath(), 'mydata.db');
+  return openDatabase(
+    path,
+    version: 1,
+    onCreate: (db, version) async {
+      await db.execute('''CREATE TABLE categories 
+        ("categorieID" INTEGER PRIMARY KEY AUTOINCREMENT,
+         "name" TEXT NOT NULL, "picPatch" TEXT NOT NULL,
+         "picPatchType" TEXT NOT NULL,
+         "type" TEXT NOT NULL);''');
+    },
+  );
+}
+
+Future<void> updateCategories() async {
+  final db = await getDatabase();
+  await db.transaction((txn) async {
+    await txn.delete('categories');
+    final batch = txn.batch();
+    for (var cat in Categorys) {
+      batch.insert('categories', cat);
+    }
+    await batch.commit(noResult: true);
+  });
+}
+
+Future<List<Map<String, dynamic>>> getCategories() async {
+  final db = await getDatabase();
+  final List<Map<String, dynamic>> result = await db.query('categories');
+  return result;
 }
 
 void alert(BuildContext context, String text) {
@@ -243,7 +297,7 @@ Widget TextFildCreator(
 }
 
 Widget ButtonCreator(
-  String text,
+  text,
   onPressed, {
   double fontsize = 18,
   FontWeight fontstyle = FontWeight.bold,
@@ -269,12 +323,15 @@ Widget ButtonCreator(
           borderRadius: BorderRadius.circular(radius),
         ),
       ),
-      child: TextCreator(
-        text,
-        fontsize: fontsize,
-        style: fontstyle,
-        color: fontcolor,
-      ),
+      child:
+          text is String
+              ? TextCreator(
+                text,
+                fontsize: fontsize,
+                style: fontstyle,
+                color: fontcolor,
+              )
+              : text,
     ),
   );
 }
@@ -343,7 +400,14 @@ Widget CategoryDisplay(
               ),
             ),
 
-            Expanded(child: Image(image: picPatchType == "URL"? NetworkImage(picPatch) : AssetImage(picPatch))),
+            Expanded(
+              child: Image(
+                image:
+                    picPatchType == "URL"
+                        ? NetworkImage(picPatch)
+                        : AssetImage(picPatch),
+              ),
+            ),
           ],
         ),
       ),
@@ -360,8 +424,10 @@ Widget ProductDisplay(
   String type,
   List<Widget> specifications, {
   onpress,
+  bool available = true,
   String picPatchType = "asset",
-  String buttonText = "+",
+  dynamic buttonText = "+",
+  bool isAddProcessing = false,
   Color? backgroundColor,
   Color frontColor = AppColor.TextColor,
 }) {
@@ -390,7 +456,26 @@ Widget ProductDisplay(
           flex: 4,
           child: Padding(
             padding: EdgeInsets.symmetric(horizontal: 10, vertical: 20),
-            child: Image(image: picPatchType == "URL"? NetworkImage(picPatch) : AssetImage(picPatch), fit: BoxFit.cover),
+            child:
+                picPatchType == "URL"
+                    ? Image.network(
+                      picPatch,
+                      fit: BoxFit.cover,
+                      loadingBuilder: (context, child, loadingProgress) {
+                        if (loadingProgress == null) {
+                          return child;
+                        }
+                        return Center(
+                          child: SpinKitFadingCube(
+                            color: AppColor.DarkTransparent0,
+                            size: 25,
+                          ),
+                        );
+                      },
+                      errorBuilder:
+                          (context, error, stackTrace) => Icon(Icons.error),
+                    )
+                    : Image.asset(picPatch, fit: BoxFit.cover),
           ),
         ),
 
@@ -428,39 +513,55 @@ Widget ProductDisplay(
           child: Container(
             margin: EdgeInsets.symmetric(horizontal: 10, vertical: 8),
 
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Flexible(
-                  child: ButtonCreator(
-                    newTextButton,
-                    onpress,
-                    fontsize: 14,
-                    width: 50,
-                    height: 50,
-                    padding: const EdgeInsets.symmetric(horizontal: 5),
-                  ),
-                ),
+            child:
+                available
+                    ? Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Flexible(
+                          child: ButtonCreator(
+                            isAddProcessing
+                                ? SpinKitThreeBounce(
+                                  color: AppColor.BackColor,
+                                  size: 12,
+                                )
+                                : newTextButton,
+                            onpress,
+                            fontsize: 14,
+                            width: 50,
+                            height: 50,
+                            padding: const EdgeInsets.symmetric(horizontal: 5),
+                          ),
+                        ),
 
-                Flexible(
-                  flex: 3,
-                  fit: FlexFit.loose,
-                  child: Align(
-                    alignment: Alignment.centerLeft,
-                    child: Padding(
-                      padding: EdgeInsets.fromLTRB(0, 0, 10, 0),
-                      child: PriceShow(
-                        price,
-                        fontsize: type == "laptop" ? 19 : 20,
-                        color: frontColor,
+                        Flexible(
+                          flex: 3,
+                          fit: FlexFit.loose,
+                          child: Align(
+                            alignment: Alignment.centerLeft,
+                            child: Padding(
+                              padding: EdgeInsets.fromLTRB(0, 0, 10, 0),
+                              child: PriceShow(
+                                price,
+                                fontsize: type == "laptop" ? 19 : 20,
+                                color: frontColor,
+                                style: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    )
+                    : Center(
+                      child: TextCreator(
+                        "نـا مـوجـود",
+                        fontsize: 20,
+                        color: frontColor.withOpacity(0.5),
+                        fontFamily: "Samin",
                         style: FontWeight.bold,
                       ),
                     ),
-                  ),
-                ),
-              ],
-            ),
           ),
         ),
         SizedBox(height: type == "mobile" ? 22 : 10),

@@ -1,8 +1,10 @@
 import 'dart:convert';
 import 'dart:math';
 import 'package:flutter/material.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:http/http.dart' as http;
 import 'package:mobile_store/default_value.dart';
+import 'package:path/path.dart';
 import 'package:shamsi_date/shamsi_date.dart';
 import 'widgets.dart';
 import 'package:intl/intl.dart';
@@ -17,17 +19,30 @@ class CartPage extends StatefulWidget {
 class _CartPageState extends State<CartPage>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
+  bool _payProcessing = false;
+  bool isRemProcessing = false;
+  late int indexRemProcessing;
+  int cartShowLentgh = cart.length;
   late final _date = Jalali.now().formatter;
+
+  late List ordersID;
+  late List orders;
 
   @override
   void initState() {
     super.initState();
-  
+
     _tabController = TabController(
       length: 2,
       vsync: this,
       initialIndex: widget.tabIndex,
     );
+
+    ordersID = cart.map((ord) => ord["ProductID"].toString()).toList();
+    orders =
+        Products.where(
+          (p) => ordersID.contains(p["ProductsID"].toString()),
+        ).toList();
   }
 
   @override
@@ -69,60 +84,105 @@ class _CartPageState extends State<CartPage>
                                         5,
                                         0,
                                       ),
-                                      child: ButtonCreator("پرداخت", () async {
-                                        List orders =
-                                            cart.map((ord) {
-                                              return {
-                                                "ProductID": ord["ProductID"],
-                                                "count": ord["count"],
-                                                "price":
-                                                    Products.firstWhere(
-                                                      (p) =>
-                                                          ord["ProductID"] ==
-                                                          p["ProductsID"],
-                                                    )["price"],
-                                              };
-                                            }).toList();
-                                        await http.post(
-                                          Url,
-                                          body: {
-                                            "state": "setpurchases",
-                                            "cost": cost.toString(),
-                                            "userid":
-                                                currentUser["UsersID"]
-                                                    .toString(),
-                                            "date":
-                                                '${_date.d} ${_date.mN} ${_date.yyyy}',
-                                            "time": DateFormat(
-                                              'HH:mm',
-                                            ).format(DateTime.now()),
-                                            "code":
-                                                Random()
-                                                    .nextInt(900000000)
-                                                    .toString(),
-                                            "orders": jsonEncode(orders),
-                                          },
-                                        );
-                                        await setPurchases();
-                                        alert(
-                                          context,
-                                          "سفارش شما با موفقیت ثبت شد.",
-                                        );
+                                      child: ButtonCreator(
+                                        _payProcessing
+                                            ? SpinKitThreeBounce(
+                                              color: AppColor.BackColor,
+                                              size: 25,
+                                            )
+                                            : "پرداخت",
+                                        () async {
+                                          if (_payProcessing) return;
+                                          setState(() {
+                                            _payProcessing = true;
+                                          });
 
-                                        for (var ord in cart) {
-                                          await http.post(
+                                          List validCart = [];
+                  
+                                          for (var item in cart) {
+                                            Map Product = Products.firstWhere(
+                                              (p) =>
+                                                  item["ProductID"]
+                                                      .toString() ==
+                                                  p["ProductsID"].toString(),
+                                            );
+
+                                            if (item["available"] ||
+                                                int.parse(item["count"]) ==
+                                                    int.parse(
+                                                      Product["inventory"],
+                                                    )) {
+                                              validCart.add(item);
+                                            }
+                                          }
+
+                                          List ords =
+                                              validCart.map((ord) {
+                                                return {
+                                                  "ProductID": ord["ProductID"],
+                                                  "count": ord["count"],
+                                                  "price":
+                                                      Products.firstWhere(
+                                                        (p) =>
+                                                            ord["ProductID"] ==
+                                                            p["ProductsID"],
+                                                      )["price"],
+                                                };
+                                              }).toList();
+
+                                          var purRes = await http.post(
                                             Url,
                                             body: {
-                                              "state": "removeorder",
-                                              "OrdersID": ord["OrdersID"],
+                                              "state": "setpurchases",
+                                              "cost": cost.toString(),
+                                              "userid":
+                                                  currentUser["UsersID"]
+                                                      .toString(),
+                                              "date":
+                                                  '${_date.d} ${_date.mN} ${_date.yyyy}',
+                                              "time": DateFormat(
+                                                'HH:mm',
+                                              ).format(DateTime.now()),
+                                              "code":
+                                                  Random()
+                                                      .nextInt(900000000)
+                                                      .toString(),
+                                              "orders": jsonEncode(ords),
                                             },
                                           );
-                                        }
+                                          await setPurchases();
+                                          if (purRes.statusCode == 200) {
+                                            await http.post(
+                                              Url,
+                                              body: {
+                                                "state": "setinventory",
+                                                "orders": jsonEncode(validCart),
+                                              },
+                                            );
+                                          }
 
-                                        setState(() {
-                                          cart.clear();
-                                        });
-                                      }, fontstyle: FontWeight.bold),
+                                          alert(
+                                            context,
+                                            "سفارش شما با موفقیت ثبت شد.",
+                                          );
+
+                                          for (var ord in cart) {
+                                            await http.post(
+                                              Url,
+                                              body: {
+                                                "state": "removeorder",
+                                                "OrdersID": ord["OrdersID"],
+                                              },
+                                            );
+                                          }
+
+                                          setState(() {
+                                            cart.clear();
+                                            _payProcessing = false;
+                                          });
+                                        },
+                                        fontstyle: FontWeight.bold,
+                                      ),
                                     ),
                                   ),
                                   Align(
@@ -147,18 +207,16 @@ class _CartPageState extends State<CartPage>
                               ),
                           itemCount: cart.length,
                           itemBuilder: (context, i) {
-                            List ordersID =
-                                cart
-                                    .map((ord) => ord["ProductID"].toString())
-                                    .toList();
-                            List orders =
-                                Products.where(
-                                  (p) => ordersID.contains(
-                                    p["ProductsID"].toString(),
-                                  ),
-                                ).toList();
-
                             final produc = orders[i];
+                            final ord = cart.firstWhere(
+                              (ord) =>
+                                  produc["ProductsID"].toString() ==
+                                  ord["ProductID"].toString(),
+                            );
+                            bool available =
+                                (ord["available"] ||
+                                    int.parse(produc["inventory"]) ==
+                                        int.parse(ord["count"]));
 
                             return ProductDisplay(
                               context,
@@ -208,34 +266,50 @@ class _CartPageState extends State<CartPage>
                                   : [],
                               picPatchType: produc["picPatchType"],
                               buttonText: "✘",
+                              available: available,
+                              isAddProcessing:
+                                  isRemProcessing && i == indexRemProcessing,
                               onpress: () async {
-                                Map order = cart.firstWhere(
-                                  (ord) =>
-                                      produc["ProductsID"].toString() ==
-                                      ord["ProductID"].toString(),
-                                );
+                                if (isRemProcessing) return;
+                                setState(() {
+                                  isRemProcessing = true;
+                                  indexRemProcessing = i;
+                                });
+                                try {
+                                  Map order = cart.firstWhere(
+                                    (ord) =>
+                                        produc["ProductsID"].toString() ==
+                                        ord["ProductID"].toString(),
+                                  );
 
-                                if (int.parse(order["count"].toString()) > 1) {
-                                  int count = int.parse(order["count"]) - 1;
-                                  await http.post(
-                                    Url,
-                                    body: {
-                                      "state": "upcountorder",
-                                      "count": count.toString(),
-                                      "OrdersID": order["OrdersID"],
-                                    },
-                                  );
-                                } else {
-                                  await http.post(
-                                    Url,
-                                    body: {
-                                      "state": "removeorder",
-                                      "OrdersID": order["OrdersID"],
-                                    },
-                                  );
+                                  if (int.parse(order["count"].toString()) >
+                                      1) {
+                                    int count = int.parse(order["count"]) - 1;
+                                    await http.post(
+                                      Url,
+                                      body: {
+                                        "state": "upcountorder",
+                                        "count": count.toString(),
+                                        "OrdersID": order["OrdersID"],
+                                      },
+                                    );
+                                  } else {
+                                    await http.post(
+                                      Url,
+                                      body: {
+                                        "state": "removeorder",
+                                        "OrdersID": order["OrdersID"],
+                                      },
+                                    );
+                                  }
+                                } catch (e) {
+                                  print("Error: $e");
+                                } finally {
+                                  await setCart();
+                                  setState(() {
+                                    isRemProcessing = false;
+                                  });
                                 }
-                                await setCart();
-                                setState(() {});
                               },
                             );
                           },
@@ -321,26 +395,37 @@ class _CartPageState extends State<CartPage>
                                               mainAxisAlignment:
                                                   MainAxisAlignment.start,
                                               children:
-                                                  order['orders']
-                                                      .take(3)
-                                                      .map<Widget>(
-                                                        (ord) => Padding(
-                                                          padding:
-                                                              const EdgeInsets.symmetric(
-                                                                horizontal: 4.0,
-                                                              ),
-                                                          child: Image.asset(
-                                                            Products.firstWhere(
-                                                              (p) =>
-                                                                  ord["ProductID"] ==
-                                                                  p["ProductsID"],
-                                                            )["picPatch"],
-                                                            width: 35,
-                                                            height: 35,
-                                                          ),
-                                                        ),
-                                                      )
-                                                      .toList(),
+                                                  order['orders'].take(3).map<
+                                                    Widget
+                                                  >((ord) {
+                                                    final produc =
+                                                        Products.firstWhere(
+                                                          (p) =>
+                                                              ord["ProductID"] ==
+                                                              p["ProductsID"],
+                                                        );
+                                                    return Flexible(
+                                                      child: Padding(
+                                                        padding:
+                                                            const EdgeInsets.symmetric(
+                                                              horizontal: 4.0,
+                                                            ),
+                                                        child:
+                                                            produc["picPatchType"] ==
+                                                                    "URL"
+                                                                ? Image.network(
+                                                                  produc["picPatch"],
+                                                                  width: 35,
+                                                                  height: 35,
+                                                                )
+                                                                : Image.asset(
+                                                                  produc["picPatch"],
+                                                                  width: 35,
+                                                                  height: 35,
+                                                                ),
+                                                      ),
+                                                    );
+                                                  }).toList(),
                                             ),
                                           ),
 

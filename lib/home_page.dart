@@ -1,10 +1,8 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
-import 'package:http/http.dart' as http;
 import 'package:mobile_store/default_value.dart';
 import 'package:mobile_store/products_page.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'widgets.dart';
 
 class HomePage extends StatefulWidget {
@@ -17,6 +15,8 @@ class _HomePageState extends State<HomePage> {
   final LayerLink _layerLink = LayerLink();
   OverlayEntry? _overlayEntry;
   late bool _loading = true;
+  List<Map> localCategories = [];
+
 
   void _onSearchChanged(String query) {
     _overlayEntry?.remove();
@@ -102,13 +102,37 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Future _SetCategories() async {
-    var response = (await http.post(Url, body: {"state": "getcategories"}));
-    if (response.statusCode == 200) {
-      Categorys = jsonDecode(response.body);
+  Future _setCategories() async {
+    if (Categorys.isEmpty) {
+      final prefs = await SharedPreferences.getInstance();
+      final savedTime = prefs.getInt("timeOfCatSave");
+
+      if (savedTime == null) {
+        await setCategories();
+        await updateCategories();
+        await prefs.setInt(
+          "timeOfCatSave",
+          DateTime.now().millisecondsSinceEpoch,
+        );
+      } else {
+        final now = DateTime.now().millisecondsSinceEpoch;
+        final differenceInHours = (now - savedTime) / (1000 * 60 * 60);
+
+        if (differenceInHours > 24) {
+          await setCategories();
+          await updateCategories();
+          await prefs.setInt(
+            "timeOfCatSave",
+            DateTime.now().millisecondsSinceEpoch,
+          );
+        } else {
+          Categorys = await getCategories();
+        }
+      }
     }
 
     setState(() {
+      localCategories = List<Map>.from(Categorys); 
       _loading = false;
     });
   }
@@ -116,7 +140,7 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
-    _SetCategories();
+    _setCategories();
   }
 
   @override
@@ -179,36 +203,33 @@ class _HomePageState extends State<HomePage> {
         body:
             _loading
                 ? SpinKitThreeBounce(color: AppColor.BackColor, size: 30)
-                : Container(
-                  child: GridView.builder(
-                    padding: EdgeInsets.all(35),
-                    gridDelegate:
-                        const SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: 1,
-                          mainAxisSpacing: 16,
-                          crossAxisSpacing: 16,
-                          childAspectRatio: 7 / 4,
-                        ),
-                    itemCount: Categorys.length,
-                    itemBuilder: (context, i) {
-                      Map item = Categorys[i];
-                      return CategoryDisplay(
-                        item["picPatch"],
-                        picPatchType: item["picPatchType"],
-                        text: item["name"],
-                        onpress: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder:
-                                  (context) =>
-                                      ProductsVewPage(type: item["type"]),
-                            ),
-                          );
-                        },
-                      );
-                    },
+                : GridView.builder(
+                  padding: EdgeInsets.all(35),
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 1,
+                    mainAxisSpacing: 16,
+                    crossAxisSpacing: 16,
+                    childAspectRatio: 7 / 4,
                   ),
+                  itemCount: Categorys.length,
+                  itemBuilder: (context, i) {
+                    Map item = Categorys[i];
+                    return CategoryDisplay(
+                      item["picPatch"],
+                      picPatchType: item["picPatchType"],
+                      text: item["name"],
+                      onpress: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder:
+                                (context) =>
+                                    ProductsVewPage(type: item["type"]),
+                          ),
+                        );
+                      },
+                    );
+                  },
                 ),
         backgroundColor: Colors.transparent,
       ),

@@ -1,6 +1,5 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
-import 'package:mobile_store/products_page.dart';
 
 //Defaults
 
@@ -19,6 +18,7 @@ Map currentUser = {};
 // {  "UsersID": "1",  "username": "mk1404",  "password": "mk1234",  "name": " محمد کریمی",};
 
 List cart = List.empty(growable: true);
+// [{OrdersID: 105, ProductID: 2, count: 4}, {OrdersID: 103, ProductID: 18, count: 2}, {OrdersID: 110, ProductID: 17, count: 1}]
 
 num cost = 0;
 num purCost = 0;

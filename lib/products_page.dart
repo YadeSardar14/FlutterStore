@@ -4,7 +4,6 @@ import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:http/http.dart' as http;
 import 'package:mobile_store/default_value.dart';
 import 'package:mobile_store/login_page.dart';
-import 'package:mobile_store/test.dart';
 import 'widgets.dart';
 import 'shoppingCart_page.dart';
 
@@ -20,14 +19,15 @@ class _ProductsVewPageState extends State<ProductsVewPage> {
   late List _products;
   late List _filteredProducts;
   bool _loading = true;
+  bool isAddProcessing = false;
+  late int indexAddProcessing;
 
   Future<void> SetPr() async {
     await setProducts();
-    
+
     setState(() {
       _loading = false;
     });
-    
   }
 
   @override
@@ -110,6 +110,15 @@ class _ProductsVewPageState extends State<ProductsVewPage> {
                     itemCount: _filteredProducts.length,
                     itemBuilder: (context, i) {
                       final produc = _filteredProducts[i];
+                      bool available =
+                          cart.firstWhere(
+                            (ord) =>
+                                produc["ProductsID"].toString() ==
+                                ord["ProductID"].toString(),
+                            orElse: () => null,
+                          )?["available"] ??
+                          (int.parse(produc["inventory"]) > 0);
+                          
                       return ProductDisplay(
                         context,
                         int.parse(produc["ProductsID"]),
@@ -156,7 +165,10 @@ class _ProductsVewPageState extends State<ProductsVewPage> {
                               ),
                             ]
                             : [],
-                            picPatchType: produc["picPatchType"],
+                        picPatchType: produc["picPatchType"],
+                        isAddProcessing:
+                            isAddProcessing && i == indexAddProcessing,
+                        available: available,
                         buttonText: "+",
                         onpress: () async {
                           if (currentUser.isEmpty) {
@@ -168,41 +180,55 @@ class _ProductsVewPageState extends State<ProductsVewPage> {
                             );
                             return;
                           }
-                          Map order = cart.firstWhere(
-                            (ord) =>
-                                produc["ProductsID"].toString() ==
-                                ord["ProductID"].toString(),
-                            orElse: () => {},
-                          );
 
-                          if (order.isEmpty) {
-                            await http.post(
-                              Url,
-                              body: {
-                                "state": "setorder",
-                                "product_id": produc["ProductsID"].toString(),
-                                "user_id": currentUser["UsersID"].toString(),
-                              },
+                          if (isAddProcessing) return;
+
+                          setState(() {
+                            isAddProcessing = true;
+                            indexAddProcessing = i;
+                          });
+
+                          try {
+                            Map order = cart.firstWhere(
+                              (ord) =>
+                                  produc["ProductsID"].toString() ==
+                                  ord["ProductID"].toString(),
+                              orElse: () => {},
                             );
-                          } else if (order["count"].toString() == "4") {
-                            alert(
-                              context,
-                              "شما به حداکثر تعداد قابل سفارش رسیدید.",
-                            );
-                          } else {
-                            int count = int.parse(order["count"]) + 1;
-                            await http.post(
-                              Url,
-                              body: {
-                                "state": "upcountorder",
-                                "count": count.toString(),
-                                "OrdersID": order["OrdersID"],
-                              },
-                            );
+
+                            if (order.isEmpty) {
+                              await http.post(
+                                Url,
+                                body: {
+                                  "state": "setorder",
+                                  "product_id": produc["ProductsID"].toString(),
+                                  "user_id": currentUser["UsersID"].toString(),
+                                },
+                              );
+                            } else if (order["count"].toString() == "4") {
+                              alert(
+                                context,
+                                "شما به حداکثر تعداد قابل سفارش رسیدید.",
+                              );
+                            } else {
+                              int count = int.parse(order["count"]) + 1;
+                              await http.post(
+                                Url,
+                                body: {
+                                  "state": "upcountorder",
+                                  "count": count.toString(),
+                                  "OrdersID": order["OrdersID"],
+                                },
+                              );
+                            }
+                          } catch (e) {
+                            print("Error: $e");
+                          } finally {
+                            await setCart();
+                            setState(() {
+                              isAddProcessing = false;
+                            });
                           }
-
-                          await setCart();
-                          setState(() {});
                         },
                       );
                     },

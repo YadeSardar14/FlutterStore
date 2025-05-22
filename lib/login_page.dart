@@ -117,7 +117,15 @@ class _LoginPageState extends State<LoginPage> {
 
                     Padding(
                       padding: EdgeInsets.fromLTRB(70, 25, 70, 20),
-                      child: ButtonCreator('ورود', () => checkUser(context)),
+                      child: ButtonCreator(
+                        _loadng
+                            ? SpinKitThreeBounce(
+                              color: AppColor.BackColor,
+                              size: 25,
+                            )
+                            : 'ورود',
+                        () => checkUser(context),
+                      ),
                     ),
 
                     Padding(
@@ -150,8 +158,6 @@ class _LoginPageState extends State<LoginPage> {
                         ),
                       ),
                     ),
-                    if (_loadng)
-                      SpinKitThreeBounce(color: AppColor.BackColor, size: 30),
                   ],
                 ),
               ),
