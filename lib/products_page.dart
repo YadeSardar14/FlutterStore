@@ -4,6 +4,8 @@ import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:http/http.dart' as http;
 import 'package:mobile_store/default_value.dart';
 import 'package:mobile_store/login_page.dart';
+import 'package:mobile_store/test.dart';
+import 'package:mobile_store/vew_product_page.dart';
 import 'widgets.dart';
 import 'shoppingCart_page.dart';
 
@@ -118,118 +120,140 @@ class _ProductsVewPageState extends State<ProductsVewPage> {
                             orElse: () => null,
                           )?["available"] ??
                           (int.parse(produc["inventory"]) > 0);
-                          
-                      return ProductDisplay(
-                        context,
-                        int.parse(produc["ProductsID"]),
-                        produc["name"],
-                        int.parse(produc["price"]),
-                        produc["picPatch"],
-                        widget.type,
-                        widget.type == "mobile"
-                            ? [
-                              IconPrInfo(
-                                Icons.account_tree_outlined,
-                                jsonDecode(produc["specVew"])["cpu"],
-                              ),
-                              IconPrInfo(
-                                Icons.battery_0_bar_outlined,
-                                jsonDecode(produc["specVew"])["battery"],
-                              ),
-                              IconPrInfo(
-                                Icons.android,
-                                jsonDecode(produc["specVew"])["android"],
-                              ),
-                              IconPrInfo(
-                                Icons.camera,
-                                jsonDecode(produc["specVew"])["camera"],
-                              ),
-                            ]
-                            : widget.type == "laptop"
-                            ? [
-                              IconPrInfo(
-                                Icons.account_tree_outlined,
-                                jsonDecode(produc["specVew"])["cpu"],
-                              ),
-                              IconPrInfo(
-                                Icons.graphic_eq_outlined,
-                                jsonDecode(produc["specVew"])["graphic"],
-                              ),
-                              IconPrInfo(
-                                Icons.memory,
-                                jsonDecode(produc["specVew"])["ram"],
-                              ),
-                              IconPrInfo(
-                                Icons.storage_rounded,
-                                jsonDecode(produc["specVew"])["storage"],
-                              ),
-                            ]
-                            : [],
-                        picPatchType: produc["picPatchType"],
-                        isAddProcessing:
-                            isAddProcessing && i == indexAddProcessing,
-                        available: available,
-                        buttonText: "+",
-                        onpress: () async {
-                          if (currentUser.isEmpty) {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => LoginPage(),
-                              ),
-                            );
-                            return;
-                          }
 
-                          if (isAddProcessing) return;
-
-                          setState(() {
-                            isAddProcessing = true;
-                            indexAddProcessing = i;
-                          });
-
-                          try {
-                            Map order = cart.firstWhere(
-                              (ord) =>
-                                  produc["ProductsID"].toString() ==
-                                  ord["ProductID"].toString(),
-                              orElse: () => {},
-                            );
-
-                            if (order.isEmpty) {
-                              await http.post(
-                                Url,
-                                body: {
-                                  "state": "setorder",
-                                  "product_id": produc["ProductsID"].toString(),
-                                  "user_id": currentUser["UsersID"].toString(),
-                                },
-                              );
-                            } else if (order["count"].toString() == "4") {
-                              alert(
-                                context,
-                                "شما به حداکثر تعداد قابل سفارش رسیدید.",
-                              );
-                            } else {
-                              int count = int.parse(order["count"]) + 1;
-                              await http.post(
-                                Url,
-                                body: {
-                                  "state": "upcountorder",
-                                  "count": count.toString(),
-                                  "OrdersID": order["OrdersID"],
-                                },
-                              );
-                            }
-                          } catch (e) {
-                            print("Error: $e");
-                          } finally {
-                            await setCart();
-                            setState(() {
-                              isAddProcessing = false;
-                            });
-                          }
+                      return InkWell(
+                        borderRadius: BorderRadius.circular(
+                          14,
+                        ), 
+                        onTap: () {
+                          showModalBottomSheet(
+                            context: context,
+                            isScrollControlled: true,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.vertical(
+                                top: Radius.circular(20),
+                              ),
+                            ),
+                            builder:
+                                (context) =>
+                                    ProductDetailSheet(product: produc),
+                          );
                         },
+
+                        child: ProductDisplay(
+                         
+                          int.parse(produc["ProductsID"]),
+                          produc["name"],
+                          int.parse(produc["price"]),
+                          produc["picPatch"],
+                          widget.type,
+                          widget.type == "mobile"
+                              ? [
+                                IconPrInfo(
+                                  Icons.account_tree_outlined,
+                                  jsonDecode(produc["specVew"])["cpu"],
+                                ),
+                                IconPrInfo(
+                                  Icons.battery_0_bar_outlined,
+                                  jsonDecode(produc["specVew"])["battery"],
+                                ),
+                                IconPrInfo(
+                                  Icons.android,
+                                  jsonDecode(produc["specVew"])["android"],
+                                ),
+                                IconPrInfo(
+                                  Icons.camera,
+                                  jsonDecode(produc["specVew"])["camera"],
+                                ),
+                              ]
+                              : widget.type == "laptop"
+                              ? [
+                                IconPrInfo(
+                                  Icons.account_tree_outlined,
+                                  jsonDecode(produc["specVew"])["cpu"],
+                                ),
+                                IconPrInfo(
+                                  Icons.graphic_eq_outlined,
+                                  jsonDecode(produc["specVew"])["graphic"],
+                                ),
+                                IconPrInfo(
+                                  Icons.memory,
+                                  jsonDecode(produc["specVew"])["ram"],
+                                ),
+                                IconPrInfo(
+                                  Icons.storage_rounded,
+                                  jsonDecode(produc["specVew"])["storage"],
+                                ),
+                              ]
+                              : [],
+                          picPatchType: produc["picPatchType"],
+                          isAddProcessing:
+                              isAddProcessing && i == indexAddProcessing,
+                          available: available,
+                          buttonText: "+",
+                          onpress: () async {
+                            if (currentUser.isEmpty) {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => LoginPage(),
+                                ),
+                              );
+                              return;
+                            }
+
+                            if (isAddProcessing) return;
+
+                            setState(() {
+                              isAddProcessing = true;
+                              indexAddProcessing = i;
+                            });
+
+                            try {
+                              Map order = cart.firstWhere(
+                                (ord) =>
+                                    produc["ProductsID"].toString() ==
+                                    ord["ProductID"].toString(),
+                                orElse: () => {},
+                              );
+
+                              if (order.isEmpty) {
+                                await http.post(
+                                  Url,
+                                  body: {
+                                    "state": "setorder",
+                                    "product_id":
+                                        produc["ProductsID"].toString(),
+                                    "user_id":
+                                        currentUser["UsersID"].toString(),
+                                  },
+                                );
+                              } else if (order["count"].toString() == "4") {
+                                alert(
+                                  context,
+                                  "شما به حداکثر تعداد قابل سفارش رسیدید.",
+                                );
+                              } else {
+                                int count = int.parse(order["count"]) + 1;
+                                await http.post(
+                                  Url,
+                                  body: {
+                                    "state": "upcountorder",
+                                    "count": count.toString(),
+                                    "OrdersID": order["OrdersID"],
+                                  },
+                                );
+                              }
+                            } catch (e) {
+                              print("Error: $e");
+                            } finally {
+                              await setCart();
+                              setState(() {
+                                isAddProcessing = false;
+                              });
+                            }
+                          },
+                        ),
                       );
                     },
                   ),

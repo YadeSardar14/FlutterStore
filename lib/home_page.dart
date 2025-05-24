@@ -30,77 +30,77 @@ class _HomePageState extends State<HomePage> {
             ),
           ).toList();
       if (filteredProducts.isNotEmpty) {
-        _overlayEntry = _createOverlayEntry(filteredProducts);
+        _overlayEntry = CreateOverlayEntryForSherch(context,_layerLink,filteredProducts);
         Overlay.of(context).insert(_overlayEntry!);
       }
     }
   }
 
-  OverlayEntry _createOverlayEntry(List ProductsList) {
-    RenderBox renderBox = context.findRenderObject() as RenderBox;
-    Offset offset = renderBox.localToGlobal(Offset.zero);
+  // OverlayEntry _createOverlayEntry(List ProductsList) {
+  //   RenderBox renderBox = context.findRenderObject() as RenderBox;
+  //   Offset offset = renderBox.localToGlobal(Offset.zero);
 
-    return OverlayEntry(
-      builder:
-          (context) => Positioned(
-            left: 35,
-            right: 70,
+  //   return OverlayEntry(
+  //     builder:
+  //         (context) => Positioned(
+  //           left: 35,
+  //           right: 70,
 
-            top: offset.dy + 60,
+  //           top: offset.dy + 60,
 
-            child: CompositedTransformFollower(
-              link: _layerLink,
-              showWhenUnlinked: false,
-              offset: const Offset(-95, 75),
-              child: Material(
-                color: const Color.fromARGB(199, 255, 218, 184),
-                elevation: 4.0,
+  //           child: CompositedTransformFollower(
+  //             link: _layerLink,
+  //             showWhenUnlinked: false,
+  //             offset: const Offset(-95, 75),
+  //             child: Material(
+  //               color: const Color.fromARGB(199, 255, 218, 184),
+  //               elevation: 4.0,
 
-                borderRadius: BorderRadius.circular(12),
-                child: ListView.builder(
-                  padding: EdgeInsets.fromLTRB(0, 16, 0, 8),
-                  shrinkWrap: true,
-                  itemCount: ProductsList.length,
-                  itemBuilder: (context, index) {
-                    Map product = ProductsList[index];
-                    return Card(
-                      color: const Color.fromARGB(197, 255, 255, 255),
-                      margin: EdgeInsets.symmetric(vertical: 2, horizontal: 8),
+  //               borderRadius: BorderRadius.circular(12),
+  //               child: ListView.builder(
+  //                 padding: EdgeInsets.fromLTRB(0, 16, 0, 8),
+  //                 shrinkWrap: true,
+  //                 itemCount: ProductsList.length,
+  //                 itemBuilder: (context, index) {
+  //                   Map product = ProductsList[index];
+  //                   return Card(
+  //                     color: const Color.fromARGB(197, 255, 255, 255),
+  //                     margin: EdgeInsets.symmetric(vertical: 2, horizontal: 8),
 
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      elevation: 2,
-                      child: ListTile(
-                        leading: Padding(
-                          padding: EdgeInsets.symmetric(vertical: 3),
-                          child: Image(
-                            image:
-                                product["picPatchType"] == "URL"
-                                    ? NetworkImage(product["picPatch"])
-                                    : AssetImage(product["picPatch"]),
-                          ),
-                        ),
-                        title: TextCreator(
-                          fontsize: 14,
-                          product["name"],
-                          style: FontWeight.bold,
-                          color: const Color.fromARGB(103, 0, 7, 112),
-                        ),
-                        trailing: PriceShow(
-                          int.parse(product["price"]),
-                          fontsize: 14,
-                          color: const Color.fromARGB(255, 57, 24, 114),
-                        ),
-                      ),
-                    );
-                  },
-                ),
-              ),
-            ),
-          ),
-    );
-  }
+  //                     shape: RoundedRectangleBorder(
+  //                       borderRadius: BorderRadius.circular(12),
+  //                     ),
+  //                     elevation: 2,
+  //                     child: ListTile(
+  //                       leading: Padding(
+  //                         padding: EdgeInsets.symmetric(vertical: 3),
+  //                         child: Image(
+  //                           image:
+  //                               product["picPatchType"] == "URL"
+  //                                   ? NetworkImage(product["picPatch"])
+  //                                   : AssetImage(product["picPatch"]),
+  //                         ),
+  //                       ),
+  //                       title: TextCreator(
+  //                         fontsize: 14,
+  //                         product["name"],
+  //                         style: FontWeight.bold,
+  //                         color: const Color.fromARGB(103, 0, 7, 112),
+  //                       ),
+  //                       trailing: PriceShow(
+  //                         int.parse(product["price"]),
+  //                         fontsize: 14,
+  //                         color: const Color.fromARGB(255, 57, 24, 114),
+  //                       ),
+  //                     ),
+  //                   );
+  //                 },
+  //               ),
+  //             ),
+  //           ),
+  //         ),
+  //   );
+  // }
 
   Future _setCategories() async {
     if (Categorys.isEmpty) {

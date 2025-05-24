@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:http/http.dart' as http;
 import 'package:mobile_store/default_value.dart';
+import 'package:mobile_store/test.dart';
+import 'package:mobile_store/vew_product_page.dart';
 import 'package:path/path.dart';
 import 'package:shamsi_date/shamsi_date.dart';
 import 'widgets.dart';
@@ -98,7 +100,7 @@ class _CartPageState extends State<CartPage>
                                           });
 
                                           List validCart = [];
-                  
+
                                           for (var item in cart) {
                                             Map Product = Products.firstWhere(
                                               (p) =>
@@ -218,99 +220,124 @@ class _CartPageState extends State<CartPage>
                                     int.parse(produc["inventory"]) ==
                                         int.parse(ord["count"]));
 
-                            return ProductDisplay(
-                              context,
-                              int.parse(produc["ProductsID"]),
-                              produc["name"],
-                              int.parse(produc["price"]),
-                              produc["picPatch"],
-                              produc["type"],
-                              produc["type"] == "mobile"
-                                  ? [
-                                    IconPrInfo(
-                                      Icons.account_tree_outlined,
-                                      jsonDecode(produc["specVew"])["cpu"],
+                            return InkWell(
+                              borderRadius: BorderRadius.circular(14),
+                              onTap: () {
+                                showModalBottomSheet(
+                                  context: context,
+                                  isScrollControlled: true,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.vertical(
+                                      top: Radius.circular(20),
                                     ),
-                                    IconPrInfo(
-                                      Icons.battery_0_bar_outlined,
-                                      jsonDecode(produc["specVew"])["battery"],
-                                    ),
-                                    IconPrInfo(
-                                      Icons.android,
-                                      jsonDecode(produc["specVew"])["android"],
-                                    ),
-                                    IconPrInfo(
-                                      Icons.camera,
-                                      jsonDecode(produc["specVew"])["camera"],
-                                    ),
-                                  ]
-                                  : produc["type"] == "laptop"
-                                  ? [
-                                    IconPrInfo(
-                                      Icons.account_tree_outlined,
-                                      jsonDecode(produc["specVew"])["cpu"],
-                                    ),
-                                    IconPrInfo(
-                                      Icons.graphic_eq_outlined,
-                                      jsonDecode(produc["specVew"])["graphic"],
-                                    ),
-                                    IconPrInfo(
-                                      Icons.memory,
-                                      jsonDecode(produc["specVew"])["ram"],
-                                    ),
-                                    IconPrInfo(
-                                      Icons.storage_rounded,
-                                      jsonDecode(produc["specVew"])["storage"],
-                                    ),
-                                  ]
-                                  : [],
-                              picPatchType: produc["picPatchType"],
-                              buttonText: "✘",
-                              available: available,
-                              isAddProcessing:
-                                  isRemProcessing && i == indexRemProcessing,
-                              onpress: () async {
-                                if (isRemProcessing) return;
-                                setState(() {
-                                  isRemProcessing = true;
-                                  indexRemProcessing = i;
-                                });
-                                try {
-                                  Map order = cart.firstWhere(
-                                    (ord) =>
-                                        produc["ProductsID"].toString() ==
-                                        ord["ProductID"].toString(),
-                                  );
-
-                                  if (int.parse(order["count"].toString()) >
-                                      1) {
-                                    int count = int.parse(order["count"]) - 1;
-                                    await http.post(
-                                      Url,
-                                      body: {
-                                        "state": "upcountorder",
-                                        "count": count.toString(),
-                                        "OrdersID": order["OrdersID"],
-                                      },
-                                    );
-                                  } else {
-                                    await http.post(
-                                      Url,
-                                      body: {
-                                        "state": "removeorder",
-                                        "OrdersID": order["OrdersID"],
-                                      },
-                                    );
-                                  }
-                                } catch (e) {
-                                  print("Error: $e");
-                                } finally {
-                                  await setCart();
-                                  setState(() {
-                                    isRemProcessing = false;
-                                  });
-                                }
+                                  ),
+                                  builder:
+                                      (context) =>
+                                          ProductDetailSheet(product: produc),
+                                );
                               },
+
+                              child: ProductDisplay(
+                                int.parse(produc["ProductsID"]),
+                                produc["name"],
+                                int.parse(produc["price"]),
+                                produc["picPatch"],
+                                produc["type"],
+                                produc["type"] == "mobile"
+                                    ? [
+                                      IconPrInfo(
+                                        Icons.account_tree_outlined,
+                                        jsonDecode(produc["specVew"])["cpu"],
+                                      ),
+                                      IconPrInfo(
+                                        Icons.battery_0_bar_outlined,
+                                        jsonDecode(
+                                          produc["specVew"],
+                                        )["battery"],
+                                      ),
+                                      IconPrInfo(
+                                        Icons.android,
+                                        jsonDecode(
+                                          produc["specVew"],
+                                        )["android"],
+                                      ),
+                                      IconPrInfo(
+                                        Icons.camera,
+                                        jsonDecode(produc["specVew"])["camera"],
+                                      ),
+                                    ]
+                                    : produc["type"] == "laptop"
+                                    ? [
+                                      IconPrInfo(
+                                        Icons.account_tree_outlined,
+                                        jsonDecode(produc["specVew"])["cpu"],
+                                      ),
+                                      IconPrInfo(
+                                        Icons.graphic_eq_outlined,
+                                        jsonDecode(
+                                          produc["specVew"],
+                                        )["graphic"],
+                                      ),
+                                      IconPrInfo(
+                                        Icons.memory,
+                                        jsonDecode(produc["specVew"])["ram"],
+                                      ),
+                                      IconPrInfo(
+                                        Icons.storage_rounded,
+                                        jsonDecode(
+                                          produc["specVew"],
+                                        )["storage"],
+                                      ),
+                                    ]
+                                    : [],
+                                picPatchType: produc["picPatchType"],
+                                buttonText: "✘",
+                                available: available,
+                                isAddProcessing:
+                                    isRemProcessing && i == indexRemProcessing,
+                                onpress: () async {
+                                  if (isRemProcessing) return;
+                                  setState(() {
+                                    isRemProcessing = true;
+                                    indexRemProcessing = i;
+                                  });
+                                  try {
+                                    Map order = cart.firstWhere(
+                                      (ord) =>
+                                          produc["ProductsID"].toString() ==
+                                          ord["ProductID"].toString(),
+                                    );
+
+                                    if (int.parse(order["count"].toString()) >
+                                        1) {
+                                      int count = int.parse(order["count"]) - 1;
+                                      await http.post(
+                                        Url,
+                                        body: {
+                                          "state": "upcountorder",
+                                          "count": count.toString(),
+                                          "OrdersID": order["OrdersID"],
+                                        },
+                                      );
+                                    } else {
+                                      await http.post(
+                                        Url,
+                                        body: {
+                                          "state": "removeorder",
+                                          "OrdersID": order["OrdersID"],
+                                        },
+                                      );
+                                    }
+                                  } catch (e) {
+                                    print("Error: $e");
+                                  } finally {
+                                    await setCart();
+                                    setState(() {
+                                      isRemProcessing = false;
+                                    });
+                                  }
+                                },
+                              ),
                             );
                           },
                         ),

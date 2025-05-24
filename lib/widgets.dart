@@ -22,6 +22,15 @@ Future setProducts() async {
 
   if (response.statusCode == 200) {
     Products = json.decode(response.body) as List;
+
+    Products.sort((a, b) {
+      int invA = int.parse(a["inventory"].toString());
+      int invB = int.parse(b["inventory"].toString());
+
+      if (invA == 0 && invB != 0) return 1;
+      if (invA != 0 && invB == 0) return -1;
+      return 0;
+    });
     return 1;
   } else {
     return 0;
@@ -415,159 +424,266 @@ Widget CategoryDisplay(
   );
 }
 
-Widget ProductDisplay(
-  BuildContext context,
-  int id,
-  String name,
-  int price,
-  String picPatch,
-  String type,
-  List<Widget> specifications, {
-  onpress,
-  bool available = true,
-  String picPatchType = "asset",
-  dynamic buttonText = "+",
-  bool isAddProcessing = false,
-  Color? backgroundColor,
-  Color frontColor = AppColor.TextColor,
-}) {
-  backgroundColor = AppColor.DarkTransparent1;
-  String? newTextButton = buttonText;
+class ProductDisplay extends StatefulWidget {
+  final int id;
+  final String name;
+  final int price;
+  final String picPatch;
+  final String type;
+  final List<Widget> specifications;
+  final Function? onpress;
+  final bool available;
+  final String picPatchType;
+  final dynamic buttonText;
+  final bool isAddProcessing;
+  final Color? backgroundColor;
+  final Color frontColor;
 
-  Map order = cart.firstWhere(
-    (ord) => id.toString() == ord["ProductID"].toString(),
-    orElse: () => {},
-  );
+  ProductDisplay(
+    this.id,
+    this.name,
+    this.price,
+    this.picPatch,
+    this.type,
+    this.specifications, {
+    this.onpress,
+    super.key,
+    this.available = true,
+    this.picPatchType = "asset",
+    this.buttonText = "+",
+    this.isAddProcessing = false,
+    this.frontColor = AppColor.TextColor,
+    Color? backgroundColor,
+  }) : backgroundColor = backgroundColor ?? AppColor.DarkTransparent1;
 
-  if (order.isNotEmpty) {
-    newTextButton = buttonText + "  " + order["count"].toString();
-  }
+  @override
+  State<ProductDisplay> createState() => _ProductDisplay();
+}
 
-  return Container(
-    decoration: BoxDecoration(
-      color: backgroundColor,
-      borderRadius: BorderRadius.circular(14),
-    ),
-    child: Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Flexible(
-          flex: 4,
-          child: Padding(
-            padding: EdgeInsets.symmetric(horizontal: 10, vertical: 20),
-            child:
-                picPatchType == "URL"
-                    ? Image.network(
-                      picPatch,
-                      fit: BoxFit.cover,
-                      loadingBuilder: (context, child, loadingProgress) {
-                        if (loadingProgress == null) {
-                          return child;
-                        }
-                        return Center(
-                          child: SpinKitFadingCube(
-                            color: AppColor.DarkTransparent0,
-                            size: 25,
-                          ),
-                        );
-                      },
-                      errorBuilder:
-                          (context, error, stackTrace) => Icon(Icons.error),
-                    )
-                    : Image.asset(picPatch, fit: BoxFit.cover),
-          ),
-        ),
+class _ProductDisplay extends State<ProductDisplay> {
+  @override
+  Widget build(BuildContext context) {
+    //     return Container(
+    // Widget ProductDisplay(
+    //   BuildContext context,
+    //   int id,
+    //   String name,
+    //   int price,
+    //   String picPatch,
+    //   String type,
+    //   List<Widget> specifications, {
+    //   onpress,
+    //   bool available = true,
+    //   String picPatchType = "asset",
+    //   dynamic buttonText = "+",
+    //   bool isAddProcessing = false,
+    //   Color? backgroundColor,
+    //   Color frontColor = AppColor.TextColor,
+    // }) {
+    //   backgroundColor = AppColor.DarkTransparent1;
 
-        Expanded(
-          child: Padding(
-            padding: EdgeInsets.fromLTRB(10, 0, 10, 5),
+    String? newTextButton = widget.buttonText;
+    bool loadingNetworkPic = true;
 
-            child: FittedBox(
-              fit: BoxFit.scaleDown,
-              child: TextCreator(
-                name,
-                color: frontColor,
-                fontsize: 20, //name.length>19 ? 19 * (19/name.length) : 19,
-                style: FontWeight.bold,
+    Map order = cart.firstWhere(
+      (ord) => widget.id.toString() == ord["ProductID"].toString(),
+      orElse: () => {},
+    );
+
+    if (order.isNotEmpty) {
+      newTextButton = widget.buttonText + "  " + order["count"].toString();
+    }
+
+    return Container(
+      decoration: BoxDecoration(
+        color: widget.backgroundColor,
+        borderRadius: BorderRadius.circular(14),
+      ),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          // Flexible(
+          //   flex: 4,
+          //   child: Padding(
+          //     padding: EdgeInsets.symmetric(horizontal: 10, vertical: 20),
+          //     child:
+          //         picPatchType == "URL"
+          //             ? Image.network(
+          //               picPatch,
+          //               fit: BoxFit.cover,
+          //               loadingBuilder: (context, child, loadingProgress) {
+          //                 if (loadingProgress == null) {
+          //                   return child;
+          //                 }
+          //                 return Center(
+          //                   child: SpinKitFadingCube(
+          //                     color: AppColor.DarkTransparent0,
+          //                     size: 25,
+          //                   ),
+          //                 );
+          //               },
+          //               errorBuilder:
+          //                   (context, error, stackTrace) => Icon(Icons.error),
+          //             )
+          //             : Hero(
+          //               tag: id.toString(),
+          //               child: Image.asset(picPatch, fit: BoxFit.cover),
+          //             ),
+          //   ),
+          // ),
+          Flexible(
+            flex: 4,
+            child: Padding(
+              padding: EdgeInsets.symmetric(horizontal: 10, vertical: 20),
+              child: Hero(
+                tag: widget.id.toString(),
+                child:
+                    widget.picPatchType == "URL"
+                        ? Stack(
+                          alignment: Alignment.center,
+                          children: [
+                            if (loadingNetworkPic)
+                              Center(
+                                child: SpinKitFadingCube(
+                                  color: AppColor.DarkTransparent0,
+                                  size: 25,
+                                ),
+                              ),
+
+                            Image.network(
+                              widget.picPatch,
+                              fit: BoxFit.cover,
+
+                              loadingBuilder: (
+                                context,
+                                child,
+                                loadingProgress,
+                              ) {
+                                if (loadingProgress == null) {
+                                  if (loadingNetworkPic) {
+                                    WidgetsBinding.instance
+                                        .addPostFrameCallback((_) {
+                                          if (mounted) {
+                                            setState(() {
+                                              loadingNetworkPic = false;
+                                            });
+                                          }
+                                        });
+                                  }
+                                  return child;
+                                }
+
+                                return Center(
+                                  child: SpinKitFadingCube(
+                                    color: AppColor.DarkTransparent0,
+                                    size: 25,
+                                  ),
+                                );
+                              },
+                              errorBuilder:
+                                  (context, error, stackTrace) =>
+                                      Icon(Icons.error),
+                            ),
+                          ],
+                        )
+                        : Image.asset(widget.picPatch, fit: BoxFit.cover),
               ),
             ),
           ),
-        ),
 
-        Expanded(
-          child: Container(
-            margin: EdgeInsets.fromLTRB(8, 5, 8, 8),
+          Expanded(
+            child: Padding(
+              padding: EdgeInsets.fromLTRB(10, 0, 10, 5),
 
-            child: FittedBox(
-              fit: BoxFit.scaleDown,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: specifications,
+              child: FittedBox(
+                fit: BoxFit.scaleDown,
+                child: TextCreator(
+                  widget.name,
+                  color: widget.frontColor,
+                  fontsize: 20, //name.length>19 ? 19 * (19/name.length) : 19,
+                  style: FontWeight.bold,
+                ),
               ),
             ),
           ),
-        ),
 
-        Expanded(
-          child: Container(
-            margin: EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+          Expanded(
+            child: Container(
+              margin: EdgeInsets.fromLTRB(8, 5, 8, 8),
 
-            child:
-                available
-                    ? Row(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Flexible(
-                          child: ButtonCreator(
-                            isAddProcessing
-                                ? SpinKitThreeBounce(
-                                  color: AppColor.BackColor,
-                                  size: 12,
-                                )
-                                : newTextButton,
-                            onpress,
-                            fontsize: 14,
-                            width: 50,
-                            height: 50,
-                            padding: const EdgeInsets.symmetric(horizontal: 5),
-                          ),
-                        ),
+              child: FittedBox(
+                fit: BoxFit.scaleDown,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: widget.specifications,
+                ),
+              ),
+            ),
+          ),
 
-                        Flexible(
-                          flex: 3,
-                          fit: FlexFit.loose,
-                          child: Align(
-                            alignment: Alignment.centerLeft,
-                            child: Padding(
-                              padding: EdgeInsets.fromLTRB(0, 0, 10, 0),
-                              child: PriceShow(
-                                price,
-                                fontsize: type == "laptop" ? 19 : 20,
-                                color: frontColor,
-                                style: FontWeight.bold,
+          Expanded(
+            child: Container(
+              margin: EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+
+              child:
+                  widget.available
+                      ? Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Flexible(
+                            child: ButtonCreator(
+                              widget.isAddProcessing
+                                  ? SpinKitThreeBounce(
+                                    color: AppColor.BackColor,
+                                    size: 12,
+                                  )
+                                  : newTextButton,
+                              widget.onpress,
+                              fontsize: 14,
+                              width: 50,
+                              height: 50,
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 5,
                               ),
                             ),
                           ),
+
+                          Flexible(
+                            flex: 3,
+                            fit: FlexFit.loose,
+                            child: Align(
+                              alignment: Alignment.centerLeft,
+                              child: Padding(
+                                padding: EdgeInsets.fromLTRB(0, 0, 10, 0),
+                                child: PriceShow(
+                                  widget.price,
+                                  fontsize: widget.type == "laptop" ? 19 : 20,
+                                  color: widget.frontColor,
+                                  style: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      )
+                      : Center(
+                        child: TextCreator(
+                          "اتمام موجودی",
+                          fontsize: 20,
+                          color: widget.frontColor.withOpacity(0.5),
+                          fontFamily: "Samin",
+                          style: FontWeight.bold,
                         ),
-                      ],
-                    )
-                    : Center(
-                      child: TextCreator(
-                        "نـا مـوجـود",
-                        fontsize: 20,
-                        color: frontColor.withOpacity(0.5),
-                        fontFamily: "Samin",
-                        style: FontWeight.bold,
                       ),
-                    ),
+            ),
           ),
-        ),
-        SizedBox(height: type == "mobile" ? 22 : 10),
-      ],
-    ),
-  );
+          SizedBox(height: widget.type == "mobile" ? 22 : 10),
+        ],
+      ),
+    );
+  }
 }
 
 Widget DrawerMenu(
@@ -700,5 +816,75 @@ Widget MenuCard(
     tileColor: const Color.fromARGB(209, 255, 240, 226),
     minTileHeight: height,
     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+  );
+}
+
+OverlayEntry CreateOverlayEntryForSherch(
+  BuildContext context,
+  LayerLink link,
+  List ProductsList,
+) {
+  RenderBox renderBox = context.findRenderObject() as RenderBox;
+  Offset offset = renderBox.localToGlobal(Offset.zero);
+
+  return OverlayEntry(
+    builder:
+        (context) => Positioned(
+          left: 35,
+          right: 70,
+
+          top: offset.dy + 60,
+
+          child: CompositedTransformFollower(
+            link: link,
+            showWhenUnlinked: false,
+            offset: const Offset(-95, 75),
+            child: Material(
+              color: const Color.fromARGB(199, 255, 218, 184),
+              elevation: 4.0,
+
+              borderRadius: BorderRadius.circular(12),
+              child: ListView.builder(
+                padding: EdgeInsets.fromLTRB(0, 16, 0, 8),
+                shrinkWrap: true,
+                itemCount: ProductsList.length,
+                itemBuilder: (context, index) {
+                  Map product = ProductsList[index];
+                  return Card(
+                    color: const Color.fromARGB(197, 255, 255, 255),
+                    margin: EdgeInsets.symmetric(vertical: 2, horizontal: 8),
+
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    elevation: 2,
+                    child: ListTile(
+                      leading: Padding(
+                        padding: EdgeInsets.symmetric(vertical: 3),
+                        child: Image(
+                          image:
+                              product["picPatchType"] == "URL"
+                                  ? NetworkImage(product["picPatch"])
+                                  : AssetImage(product["picPatch"]),
+                        ),
+                      ),
+                      title: TextCreator(
+                        fontsize: 14,
+                        product["name"],
+                        style: FontWeight.bold,
+                        color: const Color.fromARGB(103, 0, 7, 112),
+                      ),
+                      trailing: PriceShow(
+                        int.parse(product["price"]),
+                        fontsize: 14,
+                        color: const Color.fromARGB(255, 57, 24, 114),
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
+          ),
+        ),
   );
 }
