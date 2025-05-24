@@ -9,6 +9,7 @@ import 'package:mobile_store/default_value.dart';
 import 'package:mobile_store/login_page.dart';
 import 'package:mobile_store/main_page.dart';
 import 'package:mobile_store/shoppingCart_page.dart';
+import 'package:mobile_store/vew_product_page.dart';
 import 'package:path/path.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sqflite/sqflite.dart';
@@ -463,25 +464,6 @@ class ProductDisplay extends StatefulWidget {
 class _ProductDisplay extends State<ProductDisplay> {
   @override
   Widget build(BuildContext context) {
-    //     return Container(
-    // Widget ProductDisplay(
-    //   BuildContext context,
-    //   int id,
-    //   String name,
-    //   int price,
-    //   String picPatch,
-    //   String type,
-    //   List<Widget> specifications, {
-    //   onpress,
-    //   bool available = true,
-    //   String picPatchType = "asset",
-    //   dynamic buttonText = "+",
-    //   bool isAddProcessing = false,
-    //   Color? backgroundColor,
-    //   Color frontColor = AppColor.TextColor,
-    // }) {
-    //   backgroundColor = AppColor.DarkTransparent1;
-
     String? newTextButton = widget.buttonText;
     bool loadingNetworkPic = true;
 
@@ -491,7 +473,7 @@ class _ProductDisplay extends State<ProductDisplay> {
     );
 
     if (order.isNotEmpty) {
-      newTextButton = widget.buttonText + "  " + order["count"].toString();
+      newTextButton = "${widget.buttonText}  ${order["count"].toString()}";
     }
 
     return Container(
@@ -503,35 +485,6 @@ class _ProductDisplay extends State<ProductDisplay> {
         mainAxisAlignment: MainAxisAlignment.center,
         mainAxisSize: MainAxisSize.min,
         children: [
-          // Flexible(
-          //   flex: 4,
-          //   child: Padding(
-          //     padding: EdgeInsets.symmetric(horizontal: 10, vertical: 20),
-          //     child:
-          //         picPatchType == "URL"
-          //             ? Image.network(
-          //               picPatch,
-          //               fit: BoxFit.cover,
-          //               loadingBuilder: (context, child, loadingProgress) {
-          //                 if (loadingProgress == null) {
-          //                   return child;
-          //                 }
-          //                 return Center(
-          //                   child: SpinKitFadingCube(
-          //                     color: AppColor.DarkTransparent0,
-          //                     size: 25,
-          //                   ),
-          //                 );
-          //               },
-          //               errorBuilder:
-          //                   (context, error, stackTrace) => Icon(Icons.error),
-          //             )
-          //             : Hero(
-          //               tag: id.toString(),
-          //               child: Image.asset(picPatch, fit: BoxFit.cover),
-          //             ),
-          //   ),
-          // ),
           Flexible(
             flex: 4,
             child: Padding(
@@ -822,8 +775,10 @@ Widget MenuCard(
 OverlayEntry CreateOverlayEntryForSherch(
   BuildContext context,
   LayerLink link,
-  List ProductsList,
-) {
+  List ProductsList, {
+  remove,
+  add,
+}) {
   RenderBox renderBox = context.findRenderObject() as RenderBox;
   Offset offset = renderBox.localToGlobal(Offset.zero);
 
@@ -850,34 +805,52 @@ OverlayEntry CreateOverlayEntryForSherch(
                 itemCount: ProductsList.length,
                 itemBuilder: (context, index) {
                   Map product = ProductsList[index];
-                  return Card(
-                    color: const Color.fromARGB(197, 255, 255, 255),
-                    margin: EdgeInsets.symmetric(vertical: 2, horizontal: 8),
-
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    elevation: 2,
-                    child: ListTile(
-                      leading: Padding(
-                        padding: EdgeInsets.symmetric(vertical: 3),
-                        child: Image(
-                          image:
-                              product["picPatchType"] == "URL"
-                                  ? NetworkImage(product["picPatch"])
-                                  : AssetImage(product["picPatch"]),
+                  return InkWell(
+                    borderRadius: BorderRadius.circular(14),
+                    onTap: () async {
+                      remove();
+                      await showModalBottomSheet(
+                        context: context,
+                        isScrollControlled: true,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.vertical(
+                            top: Radius.circular(20),
+                          ),
                         ),
+                        builder:
+                            (context) => ProductDetailSheet(product: product),
+                      );
+                    },
+
+                    child: Card(
+                      color: const Color.fromARGB(197, 255, 255, 255),
+                      margin: EdgeInsets.symmetric(vertical: 2, horizontal: 8),
+
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
                       ),
-                      title: TextCreator(
-                        fontsize: 14,
-                        product["name"],
-                        style: FontWeight.bold,
-                        color: const Color.fromARGB(103, 0, 7, 112),
-                      ),
-                      trailing: PriceShow(
-                        int.parse(product["price"]),
-                        fontsize: 14,
-                        color: const Color.fromARGB(255, 57, 24, 114),
+                      elevation: 2,
+                      child: ListTile(
+                        leading: Padding(
+                          padding: EdgeInsets.symmetric(vertical: 3),
+                          child: Image(
+                            image:
+                                product["picPatchType"] == "URL"
+                                    ? NetworkImage(product["picPatch"])
+                                    : AssetImage(product["picPatch"]),
+                          ),
+                        ),
+                        title: TextCreator(
+                          fontsize: 14,
+                          product["name"],
+                          style: FontWeight.bold,
+                          color: const Color.fromARGB(103, 0, 7, 112),
+                        ),
+                        trailing: PriceShow(
+                          int.parse(product["price"]),
+                          fontsize: 14,
+                          color: const Color.fromARGB(255, 57, 24, 114),
+                        ),
                       ),
                     ),
                   );

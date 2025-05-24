@@ -333,6 +333,18 @@ class _CartPageState extends State<CartPage>
                                   } finally {
                                     await setCart();
                                     setState(() {
+                                      orders =
+                                          Products.where(
+                                            (p) => cart
+                                                .map(
+                                                  (ord) =>
+                                                      ord["ProductID"]
+                                                          .toString(),
+                                                )
+                                                .contains(
+                                                  p["ProductsID"].toString(),
+                                                ),
+                                          ).toList();
                                       isRemProcessing = false;
                                     });
                                   }

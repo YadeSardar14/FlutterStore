@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:mobile_store/default_value.dart';
 import 'package:mobile_store/products_page.dart';
+import 'package:mobile_store/vew_product_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'widgets.dart';
 
@@ -17,7 +18,6 @@ class _HomePageState extends State<HomePage> {
   late bool _loading = true;
   List<Map> localCategories = [];
 
-
   void _onSearchChanged(String query) {
     _overlayEntry?.remove();
     _overlayEntry = null;
@@ -30,7 +30,15 @@ class _HomePageState extends State<HomePage> {
             ),
           ).toList();
       if (filteredProducts.isNotEmpty) {
-        _overlayEntry = CreateOverlayEntryForSherch(context,_layerLink,filteredProducts);
+        _overlayEntry = CreateOverlayEntryForSherch(
+          context,
+          _layerLink,
+          filteredProducts,
+          remove: () {
+            _overlayEntry?.remove();
+            _overlayEntry = null;
+          },
+        );
         Overlay.of(context).insert(_overlayEntry!);
       }
     }
@@ -132,7 +140,7 @@ class _HomePageState extends State<HomePage> {
     }
 
     setState(() {
-      localCategories = List<Map>.from(Categorys); 
+      localCategories = List<Map>.from(Categorys);
       _loading = false;
     });
   }
