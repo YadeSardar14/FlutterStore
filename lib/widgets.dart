@@ -653,7 +653,8 @@ Widget DrawerMenu(
 }) {
   onOpen?.call();
   return Drawer(
-    backgroundColor: const Color.fromARGB(26, 255, 224, 224),
+    
+    backgroundColor: Colors.white,
     child: ListView(
       padding: EdgeInsets.all(5),
       children: [
@@ -681,7 +682,7 @@ Widget DrawerMenu(
           }
         }),
 
-        SizedBox(height: 10),
+        SizedBox(height: 2),
 
         MenuCard('پروفایل', Icons.person_outlined, () {
           if (maunPageIdex == 2) {
@@ -700,7 +701,7 @@ Widget DrawerMenu(
           }
         }),
 
-        SizedBox(height: 10),
+        SizedBox(height: 2),
 
         MenuCard('سبدخرید', Icons.shopping_bag_outlined, () {
           Navigator.push(
@@ -712,7 +713,7 @@ Widget DrawerMenu(
           );
         }),
 
-        SizedBox(height: 10),
+        SizedBox(height: 2),
 
         MenuCard('خرید های من', Icons.shopping_bag, () {
           Navigator.push(
@@ -727,7 +728,7 @@ Widget DrawerMenu(
           );
         }),
 
-        SizedBox(height: 10),
+        SizedBox(height: 2),
 
         MenuCard('درباره ما', Icons.info_outline, () {
           Navigator.push(
@@ -736,7 +737,7 @@ Widget DrawerMenu(
           );
         }),
 
-        SizedBox(height: 10),
+        SizedBox(height: 2),
 
         MenuCard('خروج از خساب کاربری', Icons.logout, () async {
           final prefs = await SharedPreferences.getInstance();
@@ -773,9 +774,9 @@ Widget MenuCard(
 
     onTap: ontab,
 
-    tileColor: const Color.fromARGB(209, 255, 240, 226),
+    tileColor: Colors.white,
     minTileHeight: height,
-    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(2)),
   );
 }
 
