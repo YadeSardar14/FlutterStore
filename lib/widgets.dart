@@ -202,9 +202,11 @@ Widget IconPrInfo(
   Color color = Colors.white,
   double fontsize = 10,
   FontWeight? fontstyle,
-  double iconsize = 18,
+  double? iconsize,
   double margin = 5,
 }) {
+  
+  iconsize = iconsize??  1.8 * fontsize;
   return FittedBox(
     fit: BoxFit.scaleDown,
     child: Padding(

@@ -4,7 +4,6 @@ import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:http/http.dart' as http;
 import 'package:mobile_store/default_value.dart';
 import 'package:mobile_store/login_page.dart';
-import 'package:mobile_store/test.dart';
 import 'package:mobile_store/vew_product_page.dart';
 import 'widgets.dart';
 import 'shoppingCart_page.dart';

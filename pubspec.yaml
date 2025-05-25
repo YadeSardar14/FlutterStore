@@ -105,6 +105,7 @@ flutter:
 
   assets:
     - assets/pictures/back.jpg
+    - assets/pictures/backp.jpg
     - assets/pictures/backin.jpg
     - assets/pictures/mobile.png
     - assets/pictures/laptop.png

@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:mobile_store/default_value.dart';
 import 'package:mobile_store/products_page.dart';
-import 'package:mobile_store/vew_product_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'widgets.dart';
 

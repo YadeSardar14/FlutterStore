@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:mobile_store/default_value.dart';
 import 'package:mobile_store/main_page.dart';
-import 'package:mobile_store/test.dart';
 
 
 class App extends StatelessWidget {

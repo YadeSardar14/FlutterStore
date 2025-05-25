@@ -112,3 +112,14 @@ BoxDecoration MainBackGrondInDecoration() {
 }
 
 
+BoxDecoration MainBackGrondpDecoration() {
+  return BoxDecoration(
+    // color: BackColor,
+    image: DecorationImage(
+      image: AssetImage("./assets/pictures/backp.jpg"),
+      fit: BoxFit.cover,
+    ),
+  );
+}
+
+
