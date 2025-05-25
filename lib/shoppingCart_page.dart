@@ -210,6 +210,7 @@ class _CartPageState extends State<CartPage>
                           itemCount: cart.length,
                           itemBuilder: (context, i) {
                             final produc = orders[i];
+                            final Map spec = jsonDecode(produc["specVew"]);
                             final ord = cart.firstWhere(
                               (ord) =>
                                   produc["ProductsID"].toString() ==
@@ -232,8 +233,7 @@ class _CartPageState extends State<CartPage>
                                     ),
                                   ),
                                   builder:
-                                      (context) =>
-                                          ProductDetailSheet(product: produc),
+                                      (context) => ProductDetailSheet(produc),
                                 );
                               },
 
@@ -247,46 +247,32 @@ class _CartPageState extends State<CartPage>
                                     ? [
                                       IconPrInfo(
                                         Icons.account_tree_outlined,
-                                        jsonDecode(produc["specVew"])["cpu"],
+                                        spec["cpu"],
                                       ),
                                       IconPrInfo(
                                         Icons.battery_0_bar_outlined,
-                                        jsonDecode(
-                                          produc["specVew"],
-                                        )["battery"],
+                                        spec["battery"],
                                       ),
                                       IconPrInfo(
                                         Icons.android,
-                                        jsonDecode(
-                                          produc["specVew"],
-                                        )["android"],
+                                        spec["android"],
                                       ),
-                                      IconPrInfo(
-                                        Icons.camera,
-                                        jsonDecode(produc["specVew"])["camera"],
-                                      ),
+                                      IconPrInfo(Icons.camera, spec["camera"]),
                                     ]
                                     : produc["type"] == "laptop"
                                     ? [
                                       IconPrInfo(
                                         Icons.account_tree_outlined,
-                                        jsonDecode(produc["specVew"])["cpu"],
+                                        spec["cpu"],
                                       ),
                                       IconPrInfo(
                                         Icons.graphic_eq_outlined,
-                                        jsonDecode(
-                                          produc["specVew"],
-                                        )["graphic"],
+                                        spec["graphic"],
                                       ),
-                                      IconPrInfo(
-                                        Icons.memory,
-                                        jsonDecode(produc["specVew"])["ram"],
-                                      ),
+                                      IconPrInfo(Icons.memory, spec["ram"]),
                                       IconPrInfo(
                                         Icons.storage_rounded,
-                                        jsonDecode(
-                                          produc["specVew"],
-                                        )["storage"],
+                                        spec["storage"],
                                       ),
                                     ]
                                     : [],

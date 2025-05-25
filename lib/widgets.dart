@@ -106,6 +106,9 @@ Future setPurchases() async {
         ord["orders"] = jsonDecode(ord["orders"]);
         return sum + int.parse(ord["cost"]);
       });
+
+      Purchases.sort((a, b) => b["PurchasesID"].compareTo(a["PurchasesID"]));
+
       return 1;
     } else {
       return 0;
@@ -217,7 +220,7 @@ Widget IconPrInfo(
         children: [
           Icon(icon, color: color, size: iconsize),
           SizedBox(height: margin),
-          TextCreator(text, color: color, fontsize: fontsize, style: fontstyle),
+          TextCreator(text, color: color, fontsize: fontsize, style: fontstyle , textDirection: TextDirection.ltr),
         ],
       ),
     ),
@@ -231,10 +234,12 @@ Widget TextCreator(
   Color background = const Color.fromARGB(0, 0, 0, 0),
   FontWeight? style = FontWeight.normal,
   String fontFamily = "Vazir",
+  TextDirection textDirection = TextDirection.rtl,
   int? maxline,
 }) {
   return AutoSizeText(
     text,
+    textDirection: textDirection,
     maxLines: maxline,
     overflow: TextOverflow.ellipsis,
     softWrap: true,
@@ -820,7 +825,7 @@ OverlayEntry CreateOverlayEntryForSherch(
                           ),
                         ),
                         builder:
-                            (context) => ProductDetailSheet(product: product),
+                            (context) => ProductDetailSheet(product),
                       );
                     },
 

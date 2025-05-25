@@ -111,6 +111,7 @@ class _ProductsVewPageState extends State<ProductsVewPage> {
                     itemCount: _filteredProducts.length,
                     itemBuilder: (context, i) {
                       final produc = _filteredProducts[i];
+                      final Map spec = jsonDecode(produc["specVew"]);
                       bool available =
                           cart.firstWhere(
                             (ord) =>
@@ -121,9 +122,7 @@ class _ProductsVewPageState extends State<ProductsVewPage> {
                           (int.parse(produc["inventory"]) > 0);
 
                       return InkWell(
-                        borderRadius: BorderRadius.circular(
-                          14,
-                        ), 
+                        borderRadius: BorderRadius.circular(14),
                         onTap: () {
                           showModalBottomSheet(
                             context: context,
@@ -133,14 +132,11 @@ class _ProductsVewPageState extends State<ProductsVewPage> {
                                 top: Radius.circular(20),
                               ),
                             ),
-                            builder:
-                                (context) =>
-                                    ProductDetailSheet(product: produc),
+                            builder: (context) => ProductDetailSheet(produc),
                           );
                         },
 
                         child: ProductDisplay(
-                         
                           int.parse(produc["ProductsID"]),
                           produc["name"],
                           int.parse(produc["price"]),
@@ -150,38 +146,29 @@ class _ProductsVewPageState extends State<ProductsVewPage> {
                               ? [
                                 IconPrInfo(
                                   Icons.account_tree_outlined,
-                                  jsonDecode(produc["specVew"])["cpu"],
+                                  spec["cpu"],
                                 ),
                                 IconPrInfo(
                                   Icons.battery_0_bar_outlined,
-                                  jsonDecode(produc["specVew"])["battery"],
+                                  spec["battery"],
                                 ),
-                                IconPrInfo(
-                                  Icons.android,
-                                  jsonDecode(produc["specVew"])["android"],
-                                ),
-                                IconPrInfo(
-                                  Icons.camera,
-                                  jsonDecode(produc["specVew"])["camera"],
-                                ),
+                                IconPrInfo(Icons.android, spec["android"]),
+                                IconPrInfo(Icons.camera, spec["camera"]),
                               ]
                               : widget.type == "laptop"
                               ? [
                                 IconPrInfo(
                                   Icons.account_tree_outlined,
-                                  jsonDecode(produc["specVew"])["cpu"],
+                                  spec["cpu"],
                                 ),
                                 IconPrInfo(
                                   Icons.graphic_eq_outlined,
-                                  jsonDecode(produc["specVew"])["graphic"],
+                                  spec["graphic"],
                                 ),
-                                IconPrInfo(
-                                  Icons.memory,
-                                  jsonDecode(produc["specVew"])["ram"],
-                                ),
+                                IconPrInfo(Icons.memory, spec["ram"]),
                                 IconPrInfo(
                                   Icons.storage_rounded,
-                                  jsonDecode(produc["specVew"])["storage"],
+                                  spec["storage"],
                                 ),
                               ]
                               : [],
