@@ -208,8 +208,7 @@ Widget IconPrInfo(
   double? iconsize,
   double margin = 5,
 }) {
-  
-  iconsize = iconsize??  1.8 * fontsize;
+  iconsize = iconsize ?? 1.8 * fontsize;
   return FittedBox(
     fit: BoxFit.scaleDown,
     child: Padding(
@@ -220,7 +219,13 @@ Widget IconPrInfo(
         children: [
           Icon(icon, color: color, size: iconsize),
           SizedBox(height: margin),
-          TextCreator(text, color: color, fontsize: fontsize, style: fontstyle , textDirection: TextDirection.ltr),
+          TextCreator(
+            text,
+            color: color,
+            fontsize: fontsize,
+            style: fontstyle,
+            textDirection: TextDirection.ltr,
+          ),
         ],
       ),
     ),
@@ -653,7 +658,6 @@ Widget DrawerMenu(
 }) {
   onOpen?.call();
   return Drawer(
-    
     backgroundColor: Colors.white,
     child: ListView(
       padding: EdgeInsets.all(5),
@@ -825,8 +829,7 @@ OverlayEntry CreateOverlayEntryForSherch(
                             top: Radius.circular(20),
                           ),
                         ),
-                        builder:
-                            (context) => ProductDetailSheet(product),
+                        builder: (context) => ProductDetailSheet(product),
                       );
                     },
 

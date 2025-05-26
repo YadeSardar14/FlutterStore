@@ -21,6 +21,8 @@ class _ProductDetailSheet extends State<ProductDetailSheet> {
 
   late int countInCart;
 
+  late bool available = true;
+
   void AddToCard() async {
     if (currentUser.isEmpty) {
       Navigator.push(
@@ -86,6 +88,14 @@ class _ProductDetailSheet extends State<ProductDetailSheet> {
   void initState() {
     // TODO: implement initState
     super.initState();
+    available =
+        cart.firstWhere(
+          (ord) =>
+              widget.product["ProductsID"].toString() ==
+              ord["ProductID"].toString(),
+          orElse: () => null,
+        )?["available"] ??
+        (int.parse(widget.product["inventory"]) > 0);
 
     countInCart = int.parse(
       cart.firstWhere(
@@ -198,7 +208,6 @@ class _ProductDetailSheet extends State<ProductDetailSheet> {
                                                 loadingProgress,
                                               ) {
                                                 if (loadingProgress == null) {
-                                                  
                                                   if (loadingNetworkPic) {
                                                     WidgetsBinding.instance
                                                         .addPostFrameCallback((
@@ -388,170 +397,208 @@ class _ProductDetailSheet extends State<ProductDetailSheet> {
                         ),
                       ],
                     ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      mainAxisAlignment: MainAxisAlignment.center,
+                    child:
+                        available
+                            ? Row(
+                              mainAxisSize: MainAxisSize.min,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              mainAxisAlignment: MainAxisAlignment.center,
 
-                      children: [
-                        Expanded(
-                          child: Row(
-                            children: [
-                              Expanded(
-                                flex: 1,
-                                child: ElevatedButton(
-                                  onPressed: AddToCard,
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: AppColor.BackForeColor2,
-                                    padding: const EdgeInsets.symmetric(
-                                      vertical: 12,
-                                    ),
-                                    shape: const RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.only(
-                                        topRight: Radius.circular(10),
-                                        bottomRight: Radius.circular(10),
-                                      ),
-                                    ),
-                                    elevation: 2,
-                                  ),
-                                  child: const Icon(
-                                    Icons.add,
-                                    size: 20,
-                                    color: Colors.white,
-                                  ),
-                                ),
-                              ),
-
-                              Expanded(
-                                flex: 3,
-                                child: ElevatedButton(
-                                  onPressed: AddToCard,
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: AppColor.BackForeColor2,
-                                    padding: EdgeInsets.symmetric(
-                                      vertical:
-                                          countInCart == 0 || isAddProcessing
-                                              ? 12
-                                              : 8,
-                                    ),
-                                    shape: const RoundedRectangleBorder(),
-                                    elevation: 2,
-                                  ),
-
-                                  child:
-                                      isAddProcessing
-                                          ? SpinKitThreeBounce(
-                                            color: AppColor.BackColor,
-
+                              children: [
+                                Expanded(
+                                  child: Row(
+                                    children: [
+                                      Expanded(
+                                        flex: 1,
+                                        child: ElevatedButton(
+                                          onPressed: AddToCard,
+                                          style: ElevatedButton.styleFrom(
+                                            backgroundColor:
+                                                AppColor.BackForeColor2,
+                                            padding: const EdgeInsets.symmetric(
+                                              vertical: 12,
+                                            ),
+                                            shape: const RoundedRectangleBorder(
+                                              borderRadius: BorderRadius.only(
+                                                topRight: Radius.circular(10),
+                                                bottomRight: Radius.circular(
+                                                  10,
+                                                ),
+                                              ),
+                                            ),
+                                            elevation: 2,
+                                          ),
+                                          child: const Icon(
+                                            Icons.add,
                                             size: 20,
-                                          )
-                                          : TextCreator(
-                                            countInCart == 0
-                                                ? 'افزودن به سبد خرید'
-                                                : countInCart.toString(),
-
-                                            style: FontWeight.bold,
-                                            fontsize:
-                                                countInCart == 0 ? 13 : 17,
                                             color: Colors.white,
                                           ),
-                                ),
-                              ),
-
-                              Expanded(
-                                flex: 1,
-                                child: ElevatedButton(
-                                  onPressed: () async {
-                                    if (isAddProcessing) return;
-                                    setState(() {
-                                      isAddProcessing = true;
-                                    });
-                                    try {
-                                      Map order = cart.firstWhere(
-                                        (ord) =>
-                                            widget.product["ProductsID"]
-                                                .toString() ==
-                                            ord["ProductID"].toString(),
-                                      );
-
-                                      if (int.parse(order["count"].toString()) >
-                                          1) {
-                                        int count =
-                                            int.parse(order["count"]) - 1;
-                                        await http.post(
-                                          Url,
-                                          body: {
-                                            "state": "upcountorder",
-                                            "count": count.toString(),
-                                            "OrdersID": order["OrdersID"],
-                                          },
-                                        );
-                                      } else {
-                                        await http.post(
-                                          Url,
-                                          body: {
-                                            "state": "removeorder",
-                                            "OrdersID": order["OrdersID"],
-                                          },
-                                        );
-                                      }
-                                    } catch (e) {
-                                      print("Error: $e");
-                                    } finally {
-                                      await setCart();
-                                      setState(() {
-                                        countInCart = int.parse(
-                                          cart.firstWhere(
-                                            (ord) =>
-                                                widget.product["ProductsID"]
-                                                    .toString() ==
-                                                ord["ProductID"].toString(),
-                                            orElse:
-                                                () => <String, dynamic>{
-                                                  "count": "0",
-                                                },
-                                          )["count"],
-                                        );
-                                        isAddProcessing = false;
-                                      });
-                                    }
-                                  },
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: AppColor.BackForeColor2,
-                                    padding: const EdgeInsets.symmetric(
-                                      vertical: 12,
-                                    ),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.only(
-                                        topLeft: Radius.circular(10),
-                                        bottomLeft: Radius.circular(10),
+                                        ),
                                       ),
-                                    ),
-                                    elevation: 2,
-                                  ),
-                                  child: const Icon(
-                                    Icons.remove,
-                                    size: 20,
-                                    color: Colors.white,
+
+                                      Expanded(
+                                        flex: 3,
+                                        child: ElevatedButton(
+                                          onPressed: AddToCard,
+                                          style: ElevatedButton.styleFrom(
+                                            backgroundColor:
+                                                AppColor.BackForeColor2,
+                                            padding: EdgeInsets.symmetric(
+                                              vertical:
+                                                  countInCart == 0 ||
+                                                          isAddProcessing
+                                                      ? 12
+                                                      : 8,
+                                            ),
+                                            shape:
+                                                const RoundedRectangleBorder(),
+                                            elevation: 2,
+                                          ),
+
+                                          child:
+                                              isAddProcessing
+                                                  ? SpinKitThreeBounce(
+                                                    color: AppColor.BackColor,
+
+                                                    size: 20,
+                                                  )
+                                                  : TextCreator(
+                                                    countInCart == 0
+                                                        ? 'افزودن به سبد خرید'
+                                                        : countInCart
+                                                            .toString(),
+
+                                                    style: FontWeight.bold,
+                                                    fontsize:
+                                                        countInCart == 0
+                                                            ? 13
+                                                            : 17,
+                                                    color: Colors.white,
+                                                  ),
+                                        ),
+                                      ),
+
+                                      Expanded(
+                                        flex: 1,
+                                        child: ElevatedButton(
+                                          onPressed: () async {
+                                            if (currentUser.isEmpty) {
+                                              Navigator.push(
+                                                context,
+                                                MaterialPageRoute(
+                                                  builder:
+                                                      (context) => LoginPage(),
+                                                ),
+                                              );
+                                              return;
+                                            }
+                                            if (isAddProcessing) return;
+                                            setState(() {
+                                              isAddProcessing = true;
+                                            });
+                                            try {
+                                              Map order = cart.firstWhere(
+                                                (ord) =>
+                                                    widget.product["ProductsID"]
+                                                        .toString() ==
+                                                    ord["ProductID"].toString(),
+                                              );
+
+                                              if (int.parse(
+                                                    order["count"].toString(),
+                                                  ) >
+                                                  1) {
+                                                int count =
+                                                    int.parse(order["count"]) -
+                                                    1;
+                                                await http.post(
+                                                  Url,
+                                                  body: {
+                                                    "state": "upcountorder",
+                                                    "count": count.toString(),
+                                                    "OrdersID":
+                                                        order["OrdersID"],
+                                                  },
+                                                );
+                                              } else {
+                                                await http.post(
+                                                  Url,
+                                                  body: {
+                                                    "state": "removeorder",
+                                                    "OrdersID":
+                                                        order["OrdersID"],
+                                                  },
+                                                );
+                                              }
+                                            } catch (e) {
+                                              print("Error: $e");
+                                            } finally {
+                                              await setCart();
+                                              setState(() {
+                                                countInCart = int.parse(
+                                                  cart.firstWhere(
+                                                    (ord) =>
+                                                        widget
+                                                            .product["ProductsID"]
+                                                            .toString() ==
+                                                        ord["ProductID"]
+                                                            .toString(),
+                                                    orElse:
+                                                        () => <String, dynamic>{
+                                                          "count": "0",
+                                                        },
+                                                  )["count"],
+                                                );
+                                                isAddProcessing = false;
+                                              });
+                                            }
+                                          },
+                                          style: ElevatedButton.styleFrom(
+                                            backgroundColor:
+                                                AppColor.BackForeColor2,
+                                            padding: const EdgeInsets.symmetric(
+                                              vertical: 12,
+                                            ),
+                                            shape: RoundedRectangleBorder(
+                                              borderRadius: BorderRadius.only(
+                                                topLeft: Radius.circular(10),
+                                                bottomLeft: Radius.circular(10),
+                                              ),
+                                            ),
+                                            elevation: 2,
+                                          ),
+                                          child: const Icon(
+                                            Icons.remove,
+                                            size: 20,
+                                            color: Colors.white,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
                                   ),
                                 ),
+                                SizedBox(width: 15),
+                                Expanded(
+                                  child: Align(
+                                    alignment: Alignment.bottomLeft,
+                                    child: PriceShow(
+                                      int.parse(widget.product["price"]),
+                                      fontsize: 20,
+                                      color: AppColor.DarkTransparent1,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            )
+                            : Center(
+                              child: TextCreator(
+                                "اتمام موجودی",
+                                fontsize: 20,
+                                color: AppColor.DarkTransparent0,
+                                fontFamily: "Samin",
+                                style: FontWeight.bold,
                               ),
-                            ],
-                          ),
-                        ),
-                        SizedBox(width: 15),
-                        Expanded(
-                          child: Align(
-                            alignment: Alignment.bottomLeft,
-                            child: PriceShow(
-                              int.parse(widget.product["price"]),
-                              fontsize: 20,
-                              color: AppColor.DarkTransparent1,
                             ),
-                          ),
-                        ),
-                      ],
-                    ),
                   ),
                 ),
               ],
