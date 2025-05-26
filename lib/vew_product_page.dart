@@ -55,6 +55,8 @@ class _ProductDetailSheet extends State<ProductDetailSheet> {
             "user_id": currentUser["UsersID"].toString(),
           },
         );
+      } else if (order["count"].toString() == "4") {
+        return;
       } else {
         int count = int.parse(order["count"]) + 1;
         await http.post(
@@ -71,6 +73,14 @@ class _ProductDetailSheet extends State<ProductDetailSheet> {
     } finally {
       await setCart();
       setState(() {
+        available =
+            cart.firstWhere(
+              (ord) =>
+                  widget.product["ProductsID"].toString() ==
+                  ord["ProductID"].toString(),
+              orElse: () => null,
+            )?["available"] ??
+            (int.parse(widget.product["inventory"]) > 0);
         countInCart = int.parse(
           cart.firstWhere(
             (ord) =>

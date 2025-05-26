@@ -123,8 +123,8 @@ class _ProductsVewPageState extends State<ProductsVewPage> {
 
                       return InkWell(
                         borderRadius: BorderRadius.circular(14),
-                        onTap: () {
-                          showModalBottomSheet(
+                        onTap: () async {
+                          await showModalBottomSheet(
                             context: context,
                             isScrollControlled: true,
                             shape: RoundedRectangleBorder(
@@ -134,6 +134,10 @@ class _ProductsVewPageState extends State<ProductsVewPage> {
                             ),
                             builder: (context) => ProductDetailSheet(produc),
                           );
+
+                          if (mounted) {
+                            setState(() {});
+                          }
                         },
 
                         child: ProductDisplay(

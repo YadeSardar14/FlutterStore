@@ -131,43 +131,46 @@ class _CartPageState extends State<CartPage>
                                                       )["price"],
                                                 };
                                               }).toList();
-
-                                          var purRes = await http.post(
-                                            Url,
-                                            body: {
-                                              "state": "setpurchases",
-                                              "cost": cost.toString(),
-                                              "userid":
-                                                  currentUser["UsersID"]
-                                                      .toString(),
-                                              "date":
-                                                  '${_date.d} ${_date.mN} ${_date.yyyy}',
-                                              "time": DateFormat(
-                                                'HH:mm',
-                                              ).format(DateTime.now()),
-                                              "code":
-                                                  Random()
-                                                      .nextInt(900000000)
-                                                      .toString(),
-                                              "orders": jsonEncode(ords),
-                                            },
-                                          );
-                                          await setPurchases();
-                                          if (purRes.statusCode == 200) {
-                                            await http.post(
+                                          print(purCost);
+                                          if (validCart.isNotEmpty) {
+                                            var purRes = await http.post(
                                               Url,
                                               body: {
-                                                "state": "setinventory",
-                                                "orders": jsonEncode(validCart),
+                                                "state": "setpurchases",
+                                                "cost": cost.toString(),
+                                                "userid":
+                                                    currentUser["UsersID"]
+                                                        .toString(),
+                                                "date":
+                                                    '${_date.d} ${_date.mN} ${_date.yyyy}',
+                                                "time": DateFormat(
+                                                  'HH:mm',
+                                                ).format(DateTime.now()),
+                                                "code":
+                                                    Random()
+                                                        .nextInt(900000000)
+                                                        .toString(),
+                                                "orders": jsonEncode(ords),
                                               },
                                             );
+                                            await setPurchases();
+                                            if (purRes.statusCode == 200) {
+                                              await http.post(
+                                                Url,
+                                                body: {
+                                                  "state": "setinventory",
+                                                  "orders": jsonEncode(
+                                                    validCart,
+                                                  ),
+                                                },
+                                              );
+                                            }
+
+                                            alert(
+                                              context,
+                                              "سفارش شما با موفقیت ثبت شد.",
+                                            );
                                           }
-
-                                          alert(
-                                            context,
-                                            "سفارش شما با موفقیت ثبت شد.",
-                                          );
-
                                           for (var ord in cart) {
                                             await http.post(
                                               Url,
@@ -223,8 +226,8 @@ class _CartPageState extends State<CartPage>
 
                             return InkWell(
                               borderRadius: BorderRadius.circular(14),
-                              onTap: () {
-                                showModalBottomSheet(
+                              onTap: () async {
+                                await showModalBottomSheet(
                                   context: context,
                                   isScrollControlled: true,
                                   shape: RoundedRectangleBorder(
@@ -235,6 +238,22 @@ class _CartPageState extends State<CartPage>
                                   builder:
                                       (context) => ProductDetailSheet(produc),
                                 );
+
+                                if (mounted) {
+                                  setState(() {
+                                    orders =
+                                        Products.where(
+                                          (p) => cart
+                                              .map(
+                                                (ord) =>
+                                                    ord["ProductID"].toString(),
+                                              )
+                                              .contains(
+                                                p["ProductsID"].toString(),
+                                              ),
+                                        ).toList();
+                                  });
+                                }
                               },
 
                               child: ProductDisplay(
