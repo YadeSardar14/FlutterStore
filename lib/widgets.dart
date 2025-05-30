@@ -743,7 +743,7 @@ Widget DrawerMenu(
 
         SizedBox(height: 2),
 
-        MenuCard('خروج از خساب کاربری', Icons.logout, () async {
+        MenuCard('خروج از حساب کاربری', Icons.logout, () async {
           final prefs = await SharedPreferences.getInstance();
           await prefs.clear();
           currentUser.clear();

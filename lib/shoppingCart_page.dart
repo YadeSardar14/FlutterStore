@@ -131,7 +131,7 @@ class _CartPageState extends State<CartPage>
                                                       )["price"],
                                                 };
                                               }).toList();
-                                          print(purCost);
+                                        
                                           if (validCart.isNotEmpty) {
                                             var purRes = await http.post(
                                               Url,

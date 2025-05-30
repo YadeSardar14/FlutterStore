@@ -27,6 +27,7 @@ class _ProductsVewPageState extends State<ProductsVewPage> {
     await setProducts();
 
     setState(() {
+      
       _loading = false;
     });
   }
@@ -36,8 +37,10 @@ class _ProductsVewPageState extends State<ProductsVewPage> {
     super.initState();
     _products = Products.where((pr) => pr["type"] == widget.type).toList();
     _filteredProducts = _products;
-
-    SetPr();
+setState(() {
+   SetPr();
+});
+   
   }
 
   void _onChangeSherch(String query) {
@@ -120,7 +123,7 @@ class _ProductsVewPageState extends State<ProductsVewPage> {
                             orElse: () => null,
                           )?["available"] ??
                           (int.parse(produc["inventory"]) > 0);
-
+                      // setState(() {});
                       return InkWell(
                         borderRadius: BorderRadius.circular(14),
                         onTap: () async {
